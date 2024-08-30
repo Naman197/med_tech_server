@@ -1,5 +1,3 @@
-// dummyData.js
-
 const dummyData = [
     {
         name: "Paracetamol",
@@ -15,7 +13,7 @@ const dummyData = [
         barcodeId: "123456789012",
         discount: 5,
         rack: "A1",
-        retailer: "64e3f1c4b56d782cba3f6c6f" // Replace with actual retailer ID
+        retailer: "66d230fb9dee0454e21b26d7" // Replace with actual retailer ID
     },
     {
         name: "Aspirin",

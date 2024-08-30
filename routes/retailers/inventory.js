@@ -2,9 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const retailInventoryController = require('../../controllers/retailer/retailInventoryController');
-
+const authenticateToken=require('../../middleware/authenticateToken')
 // Define routes and link them to controller functions
-router.get('/items', retailInventoryController.getAllInventory);
+router.get('/items', authenticateToken,retailInventoryController.getAllInventory);
 // router.post('/items', retailInventoryController.createInventory);
 // router.get('/items/:id', retailInventoryController.getInventoryById);
 // router.put('/items/:id', retailInventoryController.updateInventory);

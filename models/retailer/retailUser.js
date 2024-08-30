@@ -18,6 +18,11 @@ const retailUserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  role: { // New field for user roles
+    type: String,
+    enum: ['admin', 'retailer'], // Define allowed roles
+    default: 'retailer' // Default role
   }
 });
 
