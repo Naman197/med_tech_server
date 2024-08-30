@@ -23,11 +23,12 @@
 
 
 const mongoose = require('mongoose');
-require('dotenv').config();
+// require('dotenv').config();
 
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGO_URI || 'mongodb+srv://modinaman5:12345%40nam@cluster0.yop9v.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+    // const mongoURI = process.env.MONGO_URI || 'mongodb+srv://modinaman5:12345%40nam@cluster0.yop9v.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+    const mongoURI ='mongodb+srv://modinaman5:12345%40nam@cluster0.yop9v.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
     await mongoose.connect(mongoURI, {  
       useNewUrlParser: true,
