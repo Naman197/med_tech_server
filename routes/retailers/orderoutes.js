@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const OrderController = require('../../controllers/retailer/OrderController'); // Adjust the path as necessary
+const OrderController = require('../../controllers/retailer/orderController'); // Adjust the path as necessary
 const authenticateToken = require('../../middleware/authenticateToken');
 
 // Endpoint to create a new order
