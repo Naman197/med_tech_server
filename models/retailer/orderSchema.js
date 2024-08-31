@@ -84,6 +84,11 @@ const retailOrderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'RetailUser', // Reference to the RetailUser schema
     required: true
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['Pending', 'Completed', 'Failed'],
+    default: 'Pending' // Default payment status
   }
 });
 

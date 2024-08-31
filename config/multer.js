@@ -1,30 +1,34 @@
 const multer = require('multer');
 const path = require('path');
 
+// Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'temp-uploads/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/'); // Directory to save uploaded files
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname)); // Save file with a unique name
+    }
 });
 
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 },  // Limit the file size to 10MB (optional)
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /pdf|jpg|jpeg|png/;  // Example allowed types
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
+// Filter the types of files that can be uploaded (e.g., PDF and images)
+const fileFilter = (req, file, cb) => {
+    const allowedFileTypes = /jpeg|jpg|png|pdf/;
+    const extname = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedFileTypes.test(file.mimetype);
 
-    if (mimetype && extname) {
-      return cb(null, true);
+    if (extname && mimetype) {
+        return cb(null, true);
     } else {
-      cb(new Error('Invalid file type'));
+        cb(new Error('Only images and PDFs are allowed'));
     }
-  }
+};
+
+// Set up multer with the storage configuration and file filter
+const upload = multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: { fileSize: 1024 * 1024 * 5 } // Limit file size to 5MB
 });
 
 module.exports = upload;
