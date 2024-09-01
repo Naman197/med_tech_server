@@ -72,6 +72,8 @@ const express = require('express');
    const manfAuthRoute = require('./routes/manufacturers/authroutes');
    const distributorsAuthRoute = require('./routes/distrubutors/authroutes');
    const manfinvroute = require('./routes/manufacturers/minventory');
+   const manfOrders = require('./routes/manufacturers/orderRoutes');
+
    const dotenv = require('dotenv');
 
    
@@ -95,6 +97,7 @@ const express = require('express');
    app.use('/api/manufacturers/inv',manfinvroute );
 
    app.use('/api/manufacturers/auth', manfAuthRoute);
+   app.use('/api/manufacturers/orders', manfOrders);
 
 
    app.use('/api/distributors/auth',distributorsAuthRoute);
