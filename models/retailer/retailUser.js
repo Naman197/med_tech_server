@@ -37,7 +37,7 @@ const Schema = mongoose.Schema;
 const retailUser = new Schema({
   fullName: { type: String },
   organizationName: { type: String },
-  email: { type: String, required: true, unique: true },
+  emailAddress: { type: String, required: true, unique: true },
   phoneNumber: {
     countryCode: { type: String },
     number: { type: String }
