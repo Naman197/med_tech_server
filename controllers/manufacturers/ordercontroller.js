@@ -239,16 +239,68 @@ const getOrdersByDistributor = async (req, res) => {
     }
 };
 
-module.exports = {
-    getOrdersByDistributor
+const updatePaymentStatus = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { paymentStatus, transactionId, paymentDate } = req.body;
+
+        // Validate the provided payment status
+        if (!['Pending', 'Completed'].includes(paymentStatus)) {
+            return res.status(400).json({ message: 'Invalid payment status' });
+        }
+
+        // Find and update the order with the new payment status
+        const updatedOrder = await Order.findByIdAndUpdate(
+            orderId,
+            {
+                $set: {
+                    'paymentStatus': paymentStatus,
+                    'paymentDetails.transactionId': transactionId,
+                    'paymentDetails.paymentDate': paymentDate
+                }
+            },
+            { new: true } // Return the updated order
+        );
+
+        if (!updatedOrder) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        res.status(200).json({ message: 'Payment status updated successfully', order: updatedOrder });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update payment status', error: error.message });
+    }
 };
 
+const updateBillingDetails = async (req, res) => {
+    const { orderId } = req.params;
+    const { totalAmount, invoiceNumber, billingPdf } = req.body;
+
+    try {
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Update billing details
+        order.billingDetails.totalAmount = totalAmount || order.billingDetails.totalAmount;
+        order.billingDetails.invoiceNumber = invoiceNumber || order.billingDetails.invoiceNumber;
+        order.billingDetails.billingPdf = billingPdf || order.billingDetails.billingPdf;
+        order.billingDetails.billingDate = new Date(); // Update to current date
+
+        await order.save();
+        res.status(200).json({ message: 'Billing details updated successfully', order });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update billing details', error });
+    }
+};
 
 module.exports = {
     createOrder,
-    // updateOrder,
     confirmOrder,
     getOrdersByManufacturer,
     updateOrderStatus,
-    getOrdersByDistributor // Export the new function
+    getOrdersByDistributor,
+    updatePaymentStatus,
+    updateBillingDetails // Export the new function
 };

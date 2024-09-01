@@ -1,5 +1,6 @@
 const ManufacturerProduct = require('../../models/manufacturers/inventory');
 const cloudinary = require('../../config/cloudinary');
+const fs = require('fs');
 
 // Controller to add new inventory data
 exports.addInventory = async (req, res) => {
