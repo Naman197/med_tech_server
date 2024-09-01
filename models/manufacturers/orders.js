@@ -40,7 +40,21 @@ const OrderSchema = new Schema({
   billingDetails: {
     totalAmount: { type: Number }
   }
-}, { timestamps: true });
+//   billingDetails: {
+//     totalAmount: { type: Number }, // Total amount of the order
+//     invoiceNumber: { type: String, unique: true }, // Unique invoice number
+//     billingPdf: { type: String }, // Path or URL to the billing PDF
+//     billingDate: { type: Date, default: Date.now } // Date of the invoice/billing
+//   },
+//   feedback: {
+//     comment: { type: String }, // Feedback comment from the distributor
+//     type: { type: String, enum: ['Positive', 'Negative', 'Neutral'], default: 'Neutral' }, // Type of feedback
+//     feedbackDate: { type: Date, default: Date.now } // Date when feedback was provided
+//   }
+}, { timestamps: true }
+);
+
+
 
 const Order = mongoose.model('Order', OrderSchema);
 module.exports = Order;

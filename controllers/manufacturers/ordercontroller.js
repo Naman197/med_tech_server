@@ -179,7 +179,7 @@ const confirmOrder = async (req, res) => {
   
       // Update order status based on availability
       if (allMedicinesAvailable) {
-        order.orderStatus = 'Confirmed';
+        order.orderStatus = 'Processing';
       } else {
         order.orderStatus = 'Failed';
         order.failedMedicines = failedMedicines; // Optionally record failed medicines
@@ -201,7 +201,7 @@ const confirmOrder = async (req, res) => {
         const { status } = req.body;
 
         // Validate the provided status
-        const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'canceled']; // Adjust these statuses as per your business logic
+        const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'Failed']; // Adjust these statuses as per your business logic
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ message: 'Invalid status' });
         }
