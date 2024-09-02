@@ -317,7 +317,7 @@ const updateBillingDetails = async (req, res) => {
         order.billingDetails.billingPdf = billingPdfUrl;
         order.billingDetails.billingDate = new Date();
         
-        order.orderStatus = 'Successs';
+        order.orderStatus = 'Success';
         
         await order.save();
         console.log('Order updated successfully');
