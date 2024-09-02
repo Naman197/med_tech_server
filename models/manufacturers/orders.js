@@ -46,9 +46,19 @@ const OrderSchema = new Schema({
   },
   feedback: {
     comment: { type: String }, // Feedback comment from the distributor
-    type: { type: String, enum: ['Positive', 'Negative', 'Neutral'], default: 'Neutral' }, // Type of feedback
+    rating: {
+        type: String,
+        enum: [
+            'Very Poor',   // 1
+            'Poor',        // 2
+            'Neutral',     // 3
+            'Good',        // 4
+            'Excellent'    // 5
+        ],
+        default: 'Neutral' // Default rating
+    },
     feedbackDate: { type: Date, default: Date.now } // Date when feedback was provided
-  },
+},
 orderType: { 
     type: String, 
     enum: ['Placed', 'Returned'], 

@@ -10,7 +10,8 @@ const {
     getOrdersByDistributor, 
     updatePaymentStatus,
     updateBillingDetails,
-    setOrderStatus // Import the new controller function
+    setOrderStatus,
+    addFeedback, // Import the new controller function
 } = require('../../controllers/manufacturers/ordercontroller');
 const authenticateToken = require('../../middleware/authenticateToken'); // Ensure the correct path
 const uploadMiddleware = upload.single('billingPdf');
@@ -37,7 +38,7 @@ router.patch('/orders/:orderId/status', authenticateToken, updateOrderStatus);
 router.patch('/:orderId/payment-status', authenticateToken, updatePaymentStatus);
 // router.patch('/:orderId/billing', authenticateToken, updateBillingDetails);
 
-// router.patch('/:orderId/feedback', authenticateToken, addFeedback);
+router.patch('/:orderId/feedback', authenticateToken, addFeedback);
 
 
 // Route for updating order status to 'Shipped' or 'Delivered'

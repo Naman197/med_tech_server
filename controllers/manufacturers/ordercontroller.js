@@ -357,6 +357,48 @@ const setOrderStatus = async (req, res) => {
         res.status(500).json({ message: 'Failed to update order status', error: error.message });
     }
 };
+const addFeedback = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { comment, rating } = req.body;
+
+        // Define valid ratings
+        const validRatings = [
+            'Very Poor', 'Poor', 'Neutral', 'Good', 'Excellent'
+        ];
+
+        // Validate rating
+        if (!validRatings.includes(rating)) {
+            return res.status(400).json({ message: 'Invalid rating provided' });
+        }
+
+        // Validate comment content (optional)
+        if (!comment || comment.trim() === '') {
+            return res.status(400).json({ message: 'Feedback comment cannot be empty' });
+        }
+
+        // Find and update the order with the new feedback
+        const updatedOrder = await Order.findByIdAndUpdate(
+            orderId,
+            {
+                $set: {
+                    'feedback.comment': comment,
+                    'feedback.rating': rating,
+                    'feedback.feedbackDate': new Date() // Set feedbackDate to current date
+                }
+            },
+            { new: true } // Return the updated order
+        );
+
+        if (!updatedOrder) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        res.status(200).json({ message: 'Feedback added successfully', order: updatedOrder });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to add feedback', error: error.message });
+    }
+};
 
 module.exports = {
     createOrder,
@@ -366,5 +408,6 @@ module.exports = {
     getOrdersByDistributor,
     updatePaymentStatus,
     updateBillingDetails,
-    setOrderStatus// Export the new function
+    setOrderStatus,
+    addFeedback// Export the new function
 };
