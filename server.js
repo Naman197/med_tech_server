@@ -85,10 +85,10 @@ const express = require('express');
    connectDB();
 
    app.use(cors({
-     origin: '*',
-     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-     allowedHeaders: ['Content-Type', 'Authorization'],
-   }));
+    origin: '*', // Allows all origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
    app.use(express.json());
    app.use(express.urlencoded({ extended: true }));
