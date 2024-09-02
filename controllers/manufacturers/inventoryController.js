@@ -1,7 +1,6 @@
 const ManufacturerProduct = require('../../models/manufacturers/inventory');
 const cloudinary = require('../../config/cloudinary');
-const fs = require('fs');
-
+const fs=require('fs');
 // Controller to add new inventory data
 exports.addInventory = async (req, res) => {
     try {
@@ -27,8 +26,29 @@ exports.addInventory = async (req, res) => {
   
       let qualityCheckFiles = [];
   
-      if (req.files && req.files.length > 0) {
+    //   if (req.files && req.files.length > 0) {
+    //     for (const file of req.files) {
+    //       try {
+    //         let result;
+    //         if (file.mimetype.startsWith('image/')) {
+    //           result = await cloudinary.uploader.upload(file.path);
+    //           qualityCheckFiles.push({ type: 'image', url: result.secure_url });
+    //         } else if (file.mimetype === 'application/pdf') {
+    //           result = await cloudinary.uploader.upload(file.path, { resource_type: 'raw' });
+    //           qualityCheckFiles.push({ type: 'pdf', url: result.secure_url });
+    //         }
+  
+    //         // Remove the file from local storage after successful upload
+    //         fs.unlinkSync(file.path);
+    //       } catch (cloudinaryError) {
+    //         console.error('Cloudinary upload error:', cloudinaryError.message);
+    //         return res.status(500).json({ message: 'Failed to upload file to Cloudinary', error: cloudinaryError.message });
+    //       }
+    //     }
+    //   }
+    if (req.files && req.files.length > 0) {
         for (const file of req.files) {
+          console.log('File path:', file.path); // Log the file path
           try {
             let result;
             if (file.mimetype.startsWith('image/')) {
@@ -38,15 +58,13 @@ exports.addInventory = async (req, res) => {
               result = await cloudinary.uploader.upload(file.path, { resource_type: 'raw' });
               qualityCheckFiles.push({ type: 'pdf', url: result.secure_url });
             }
-  
-            // Remove the file from local storage after successful upload
-            fs.unlinkSync(file.path);
           } catch (cloudinaryError) {
             console.error('Cloudinary upload error:', cloudinaryError.message);
             return res.status(500).json({ message: 'Failed to upload file to Cloudinary', error: cloudinaryError.message });
           }
         }
       }
+      
   
       const newProduct = new ManufacturerProduct({
         name,
@@ -277,7 +295,7 @@ exports.getInventoryById = async (req, res) => {
 
   exports.searchProducts = async (req, res) => {
     try {
-        console.log(req.query);
+          console.log(req.query);
 
       const { batchNo, name, barcode } = req.query;
       // Build query object based on provided parameters
