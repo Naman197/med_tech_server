@@ -11,7 +11,8 @@ const {
     updatePaymentStatus,
     updateBillingDetails,
     setOrderStatus,
-    addFeedback, // Import the new controller function
+    addFeedback,
+    createReturnOrder // Import the new controller function
 } = require('../../controllers/manufacturers/ordercontroller');
 const authenticateToken = require('../../middleware/authenticateToken'); // Ensure the correct path
 const uploadMiddleware = upload.single('billingPdf');
@@ -43,6 +44,8 @@ router.patch('/:orderId/feedback', authenticateToken, addFeedback);
 
 // Route for updating order status to 'Shipped' or 'Delivered'
 router.patch('/:orderId/set-status', authenticateToken, setOrderStatus); // Updated route endpoint
+
+router.post('/return', authenticateToken, createReturnOrder);
 
 
 module.exports = router;

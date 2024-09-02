@@ -60,9 +60,13 @@ const OrderSchema = new Schema({
     feedbackDate: { type: Date, default: Date.now } // Date when feedback was provided
 },
 orderType: { 
-    type: String, 
-    enum: ['Placed', 'Returned'], 
-  } 
+  type: String, 
+  enum: ['Placed', 'Returned'], 
+},
+returnDetails: {
+  reason: { type: String },
+  returnDate: { type: Date }
+}
 }, { timestamps: true }
 );
 
