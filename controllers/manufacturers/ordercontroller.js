@@ -277,42 +277,61 @@ const updatePaymentStatus = async (req, res) => {
 const updateBillingDetails = async (req, res) => {
     const { orderId } = req.params;
     const { totalAmount, invoiceNumber } = req.body;
+    
+    console.log('Updating billing details for order:', orderId);
 
     try {
         const order = await Order.findById(orderId);
         if (!order) {
+            console.log('Order not found:', orderId);
             return res.status(404).json({ message: 'Order not found' });
         }
-
-        // Handle file upload to Cloudinary
+        
         let billingPdfUrl = order.billingDetails.billingPdf;
         if (req.file) {
-            // Upload file to Cloudinary with explicit public access
-            const result = await cloudinary.uploader.upload(req.file.path, {
-                resource_type: 'auto', // Automatically detect the type of file (e.g., image, pdf)
-                access_mode: 'public' // Set the access mode to public
-            });
-            billingPdfUrl = result.secure_url; // Get the URL of the uploaded file
+            console.log('Attempting to upload file to Cloudinary');
+            try {
+                const result = await cloudinary.uploader.upload(req.file.path, {
+                    resource_type: 'auto',
+                    access_mode: 'public',
+                    folder: 'billing_pdfs'
+                });
+                console.log('Cloudinary upload result:', JSON.stringify(result, null, 2));
+                
+                billingPdfUrl = result.secure_url;
+                console.log('File uploaded successfully. URL:', billingPdfUrl);
 
-            // Optionally, remove the local file if you don't need it anymore
-            fs.unlinkSync(req.file.path); // Uncomment if you want to delete the file after upload
+                // Remove local file
+                fs.unlinkSync(req.file.path);
+                console.log('Local file removed');
+
+            } catch (uploadError) {
+                console.error('Cloudinary upload error:', uploadError);
+                return res.status(500).json({ message: 'Failed to upload file', error: uploadError.message });
+            }
         }
-
+        
         // Update billing details
         order.billingDetails.totalAmount = totalAmount || order.billingDetails.totalAmount;
         order.billingDetails.invoiceNumber = invoiceNumber || order.billingDetails.invoiceNumber;
-        order.billingDetails.billingPdf = billingPdfUrl; // Update with Cloudinary URL
-        order.billingDetails.billingDate = new Date(); // Update to the current date
-
-        // Update order status to 'Packing'
-        order.orderStatus = 'Packing';
-
+        order.billingDetails.billingPdf = billingPdfUrl;
+        order.billingDetails.billingDate = new Date();
+        
+        order.orderStatus = 'Successs';
+        
         await order.save();
-        res.status(200).json({ message: 'Billing details and order status updated successfully', order });
+        console.log('Order updated successfully');
+        res.status(200).json({ 
+            message: 'Billing details and order status updated successfully', 
+            order,
+            billingPdfUrl
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Failed to update billing details and order status', error: error.message });
+        console.error('Error updating billing details:', error);
+        res.status(500).json({ message: 'Failed to update billing details and order status', error: error.toString() });
     }
 };
+
 
 const setOrderStatus = async (req, res) => {
     const { orderId } = req.params;

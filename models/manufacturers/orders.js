@@ -29,7 +29,7 @@ const OrderSchema = new Schema({
       temperature: { type: String } // Storage temperature of the medicine
     }
   ],
-  orderStatus: { type: String, enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Failed','Packing'], default: 'Pending' }, // Added 'Failed'
+  orderStatus: { type: String, enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Failed','Success'], default: 'Pending' }, // Added 'Failed'
   paymentStatus: { type: String, enum: ['Pending', 'Completed'], default: 'Pending' }, // Payment status
   paymentDetails: {
     transactionId: { type: String },
