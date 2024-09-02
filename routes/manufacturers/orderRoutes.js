@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const upload = require('../../config/multer'); // Adjust the path as needed
+
 const { 
     createOrder, 
     confirmOrder, 
@@ -7,9 +9,14 @@ const {
     updateOrderStatus, 
     getOrdersByDistributor, 
     updatePaymentStatus,
-    updateBillingDetails // Import the new controller function
+    updateBillingDetails,
+    setOrderStatus // Import the new controller function
 } = require('../../controllers/manufacturers/ordercontroller');
 const authenticateToken = require('../../middleware/authenticateToken'); // Ensure the correct path
+const uploadMiddleware = upload.single('billingPdf');
+
+// Route for updating billing details
+router.patch('/:orderId/billing', authenticateToken, uploadMiddleware, updateBillingDetails);
 
 // Create a new order
 router.post('/', authenticateToken, createOrder);
@@ -27,8 +34,14 @@ router.get('/distributor/orderdetails', authenticateToken, getOrdersByDistributo
 router.patch('/orders/:orderId/status', authenticateToken, updateOrderStatus);
 
 // Update payment status
-router.patch('/orders/:orderId/payment-status', authenticateToken, updatePaymentStatus);
-router.patch('/orders/:orderId/billing', authenticateToken, updateBillingDetails);
+router.patch('/:orderId/payment-status', authenticateToken, updatePaymentStatus);
+// router.patch('/:orderId/billing', authenticateToken, updateBillingDetails);
+
+// router.patch('/:orderId/feedback', authenticateToken, addFeedback);
+
+
+// Route for updating order status to 'Shipped' or 'Delivered'
+router.patch('/:orderId/set-status', authenticateToken, setOrderStatus); // Updated route endpoint
 
 
 module.exports = router;

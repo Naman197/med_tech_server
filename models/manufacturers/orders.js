@@ -29,7 +29,7 @@ const OrderSchema = new Schema({
       temperature: { type: String } // Storage temperature of the medicine
     }
   ],
-  orderStatus: { type: String, enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Failed'], default: 'Pending' }, // Added 'Failed'
+  orderStatus: { type: String, enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Failed','Packing'], default: 'Pending' }, // Added 'Failed'
   paymentStatus: { type: String, enum: ['Pending', 'Completed'], default: 'Pending' }, // Payment status
   paymentDetails: {
     transactionId: { type: String },
@@ -37,20 +37,22 @@ const OrderSchema = new Schema({
   },
   boxNo: { type: String },
   qrCode: { type: String },
+  
   billingDetails: {
-    totalAmount: { type: Number }
-  }
-//   billingDetails: {
-//     totalAmount: { type: Number }, // Total amount of the order
-//     invoiceNumber: { type: String, unique: true }, // Unique invoice number
-//     billingPdf: { type: String }, // Path or URL to the billing PDF
-//     billingDate: { type: Date, default: Date.now } // Date of the invoice/billing
-//   },
-//   feedback: {
-//     comment: { type: String }, // Feedback comment from the distributor
-//     type: { type: String, enum: ['Positive', 'Negative', 'Neutral'], default: 'Neutral' }, // Type of feedback
-//     feedbackDate: { type: Date, default: Date.now } // Date when feedback was provided
-//   }
+    totalAmount: { type: Number }, // Total amount of the order
+    invoiceNumber: { type: String, unique: true }, // Unique invoice number
+    billingPdf: { type: String }, // Path or URL to the billing PDF
+    billingDate: { type: Date, default: Date.now } // Date of the invoice/billing
+  },
+  feedback: {
+    comment: { type: String }, // Feedback comment from the distributor
+    type: { type: String, enum: ['Positive', 'Negative', 'Neutral'], default: 'Neutral' }, // Type of feedback
+    feedbackDate: { type: Date, default: Date.now } // Date when feedback was provided
+  },
+orderType: { 
+    type: String, 
+    enum: ['Placed', 'Returned'], 
+  } 
 }, { timestamps: true }
 );
 

@@ -3,6 +3,8 @@ const Order = require('../../models/manufacturers/orders');
 const Distributor = require('../../models/distributors/distributorUser');
 const Manufacturer = require('../../models/manufacturers/user');
 const ManufacturerProduct = require('../../models/manufacturers/inventory');
+const cloudinary = require('../../config/cloudinary'); 
+const fs = require('fs'); 
 
 // Create a new order
 const createOrder = async (req, res) => {
@@ -274,7 +276,7 @@ const updatePaymentStatus = async (req, res) => {
 
 const updateBillingDetails = async (req, res) => {
     const { orderId } = req.params;
-    const { totalAmount, invoiceNumber, billingPdf } = req.body;
+    const { totalAmount, invoiceNumber } = req.body;
 
     try {
         const order = await Order.findById(orderId);
@@ -282,16 +284,56 @@ const updateBillingDetails = async (req, res) => {
             return res.status(404).json({ message: 'Order not found' });
         }
 
+        // Handle file upload to Cloudinary
+        let billingPdfUrl = order.billingDetails.billingPdf;
+        if (req.file) {
+            // Upload file to Cloudinary
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                resource_type: 'auto' // Automatically detect the type of file (e.g., image, pdf)
+            });
+            billingPdfUrl = result.secure_url; // Get the URL of the uploaded file
+
+            // Optionally, remove the local file if you don't need it anymore
+            fs.unlinkSync(req.file.path); // Uncomment if you want to delete the file after upload
+        }
+
         // Update billing details
         order.billingDetails.totalAmount = totalAmount || order.billingDetails.totalAmount;
         order.billingDetails.invoiceNumber = invoiceNumber || order.billingDetails.invoiceNumber;
-        order.billingDetails.billingPdf = billingPdf || order.billingDetails.billingPdf;
-        order.billingDetails.billingDate = new Date(); // Update to current date
+        order.billingDetails.billingPdf = billingPdfUrl; // Update with Cloudinary URL
+        order.billingDetails.billingDate = new Date(); // Update to the current date
+
+        // Update order status to 'Packing'
+        order.orderStatus = 'Packing';
 
         await order.save();
-        res.status(200).json({ message: 'Billing details updated successfully', order });
+        res.status(200).json({ message: 'Billing details and order status updated successfully', order });
     } catch (error) {
-        res.status(500).json({ message: 'Failed to update billing details', error });
+        res.status(500).json({ message: 'Failed to update billing details and order status', error: error.message });
+    }
+};
+const setOrderStatus = async (req, res) => {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    try {
+        const validStatuses = ['Shipped', 'Delivered'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
+
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Update order status
+        order.orderStatus = status;
+
+        await order.save();
+        res.status(200).json({ message: 'Order status updated successfully', order });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update order status', error: error.message });
     }
 };
 
@@ -302,5 +344,6 @@ module.exports = {
     updateOrderStatus,
     getOrdersByDistributor,
     updatePaymentStatus,
-    updateBillingDetails // Export the new function
+    updateBillingDetails,
+    setOrderStatus// Export the new function
 };
