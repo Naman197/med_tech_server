@@ -287,9 +287,10 @@ const updateBillingDetails = async (req, res) => {
         // Handle file upload to Cloudinary
         let billingPdfUrl = order.billingDetails.billingPdf;
         if (req.file) {
-            // Upload file to Cloudinary
+            // Upload file to Cloudinary with explicit public access
             const result = await cloudinary.uploader.upload(req.file.path, {
-                resource_type: 'auto' // Automatically detect the type of file (e.g., image, pdf)
+                resource_type: 'auto', // Automatically detect the type of file (e.g., image, pdf)
+                access_mode: 'public' // Set the access mode to public
             });
             billingPdfUrl = result.secure_url; // Get the URL of the uploaded file
 
@@ -312,6 +313,7 @@ const updateBillingDetails = async (req, res) => {
         res.status(500).json({ message: 'Failed to update billing details and order status', error: error.message });
     }
 };
+
 const setOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
