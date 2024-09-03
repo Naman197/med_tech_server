@@ -241,24 +241,50 @@ const getOrdersByDistributor = async (req, res) => {
     }
 };
 
+// const updatePaymentStatus = async (req, res) => {
+//     try {
+//         const { orderId } = req.params;
+//         // const { paymentStatus, transactionId, paymentDate } = req.body;
+
+//         // // Validate the provided payment status
+//         // if (!['Pending', 'Completed'].includes(paymentStatus)) {
+//         //     return res.status(400).json({ message: 'Invalid payment status' });
+//         // }
+
+//         // Find and update the order with the new payment status
+//         // const updatedOrder = await Order.findByIdAndUpdate(
+//         //     orderId,
+//         //     {
+//         //         $set: {
+//         //             'paymentStatus': paymentStatus,
+//         //             'paymentDetails.transactionId': transactionId,
+//         //             'paymentDetails.paymentDate': paymentDate
+//         //         }
+//         //     },
+//         //     { new: true } // Return the updated order
+//         // );
+
+//         // if (!updatedOrder) {
+//         //     return res.status(404).json({ message: 'Order not found' });
+//         // }
+
+//         res.status(200).json({ message: 'Payment status updated successfully', order: updatedOrder });
+//     } catch (error) {
+//         res.status(500).json({ message: 'Failed to update payment status', error: error.message });
+//     }
+// };
+
+
 const updatePaymentStatus = async (req, res) => {
     try {
         const { orderId } = req.params;
-        const { paymentStatus, transactionId, paymentDate } = req.body;
 
-        // Validate the provided payment status
-        if (!['Pending', 'Completed'].includes(paymentStatus)) {
-            return res.status(400).json({ message: 'Invalid payment status' });
-        }
-
-        // Find and update the order with the new payment status
+        // Find and update the order with the payment status set to "Completed"
         const updatedOrder = await Order.findByIdAndUpdate(
             orderId,
             {
                 $set: {
-                    'paymentStatus': paymentStatus,
-                    'paymentDetails.transactionId': transactionId,
-                    'paymentDetails.paymentDate': paymentDate
+                    'paymentStatus': 'Completed'
                 }
             },
             { new: true } // Return the updated order
