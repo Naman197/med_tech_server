@@ -545,7 +545,7 @@ const setOrderStatus = async (req, res) => {
                             cost: medicine.cost,
                             deliveredDateTemperature: medicine.temperature,
                             // rack: medicine.rack,
-                            composition: medicine.composition
+                            composition: Array.isArray(medicine.composition) ? medicine.composition.join(', ') : medicine.composition
                         }
                     },
                     { upsert: true, new: true } // If the document doesn't exist, create it; return the updated document
