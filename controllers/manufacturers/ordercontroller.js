@@ -463,6 +463,49 @@ const updateBillingDetails = async (req, res) => {
 //     }
 // };
 
+
+
+
+// const setOrderStatus = async (req, res) => {
+//     const { orderId } = req.params;
+//     const { status } = req.body;
+
+//     try {
+//         const validStatuses = ['Shipped', 'Delivered'];
+//         if (!validStatuses.includes(status)) {
+//             return res.status(400).json({ message: 'Invalid status' });
+//         }
+
+//         const order = await Order.findById(orderId);
+//         if (!order) {
+//             return res.status(404).json({ message: 'Order not found' });
+//         }
+
+//         // Update order status
+//         order.orderStatus = status;
+
+//         if (status === 'Delivered') {
+//             // Find the distributor associated with the order
+//             const distributorId = order.distributor.distributorId;
+
+//             // Update inventory for the specific distributor when the order is delivered
+//             for (const medicine of order.medicines) {
+//                 await DistProduct.findOneAndUpdate(
+//                     { distributor: distributorId, name: medicine.name, batchNo: medicine.batchNo },
+//                     { $inc: { qty: medicine.qty } },
+//                     { upsert: true } // If the document doesn't exist, create it
+//                 );
+//             }
+//         }
+
+//         await order.save();
+//         res.status(200).json({ message: 'Order status updated successfully', order });
+//     } catch (error) {
+//         res.status(500).json({ message: 'Failed to update order status', error: error.message });
+//     }
+// };
+
+
 const setOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
@@ -488,9 +531,24 @@ const setOrderStatus = async (req, res) => {
             // Update inventory for the specific distributor when the order is delivered
             for (const medicine of order.medicines) {
                 await DistProduct.findOneAndUpdate(
-                    { distributor: distributorId, name: medicine.name, batchNo: medicine.batchNo },
-                    { $inc: { qty: medicine.qty } },
-                    { upsert: true } // If the document doesn't exist, create it
+                    {
+                        distributor: distributorId,
+                        name: medicine.name,
+                        batchNo: medicine.batchNo
+                    },
+                    {
+                        $inc: { qty: medicine.qty },
+                        $set: {
+                            category: medicine.category,
+                            expiryDate: medicine.expiryDate,
+                            mrp: medicine.mrp,
+                            cost: medicine.cost,
+                            deliveredDateTemperature: medicine.temperature,
+                            rack: medicine.rack,
+                            composition: medicine.composition
+                        }
+                    },
+                    { upsert: true, new: true } // If the document doesn't exist, create it; return the updated document
                 );
             }
         }
@@ -730,10 +788,8 @@ const createReturnOrder = async (req, res) => {
             }
         }
 
-        // Extract distributorId from authenticated user
         const distributorId = req.user.id;
 
-        // Find the distributor and manufacturer details
         const distributor = await Distributor.findById(distributorId);
         if (!distributor) {
             return res.status(404).json({ message: 'Distributor not found' });
@@ -744,7 +800,6 @@ const createReturnOrder = async (req, res) => {
             return res.status(404).json({ message: 'Manufacturer not found' });
         }
 
-        // Process medicines and fetch details
         const populatedMedicines = [];
         for (const medicine of medicines) {
             const product = await ManufacturerProduct.findOne({ name: medicine.name });
