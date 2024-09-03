@@ -40,6 +40,8 @@ const ManufacturerProductSchema = new Schema({
   expiryDate: { type: Date },
   mrp: { type: Number }, 
   cost: { type: Number },
+  sellingPrice: { type: Number }, 
+
   qty: { type: Number }, 
   productionDate: { type: Date },
   qualityCheck: { type: Boolean }, 

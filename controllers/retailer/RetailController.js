@@ -3,9 +3,9 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const generateAccessToken=require('../../utils/generateToken');
 // Generate tokens
-const generateAccessToken = (user) => {
-  return jwt.sign({ id: user._id }, 1234, { expiresIn: '45m' }); // Access token expires in 15 minutes
-};
+// const generateAccessToken = (user) => {
+//   return jwt.sign({ id: user._id }, 1234, { expiresIn: '45m' }); // Access token expires in 15 minutes
+// };
 
 const generateRefreshToken = (user) => {
   return jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' }); // Refresh token expires in 7 days
