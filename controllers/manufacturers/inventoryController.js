@@ -3,96 +3,77 @@ const cloudinary = require('../../config/cloudinary');
 const fs=require('fs');
 // Controller to add new inventory data
 exports.addInventory = async (req, res) => {
-    try {
-      const {
-        name,
-        category,
-        batchNo,
-        expiryDate,
-        mrp,
-        cost,
-        qty,
-        productionDate,
-        qualityCheck,
-        machineNo,
-        demand,
-        barcode,
-        composition,
-        temperature,
-        rack
-      } = req.body;
-  
-      const manufacturerId = req.user.id; // Use user ID from the middleware
-  
-      let qualityCheckFiles = [];
-  
-    //   if (req.files && req.files.length > 0) {
-    //     for (const file of req.files) {
-    //       try {
-    //         let result;
-    //         if (file.mimetype.startsWith('image/')) {
-    //           result = await cloudinary.uploader.upload(file.path);
-    //           qualityCheckFiles.push({ type: 'image', url: result.secure_url });
-    //         } else if (file.mimetype === 'application/pdf') {
-    //           result = await cloudinary.uploader.upload(file.path, { resource_type: 'raw' });
-    //           qualityCheckFiles.push({ type: 'pdf', url: result.secure_url });
-    //         }
-  
-    //         // Remove the file from local storage after successful upload
-    //         fs.unlinkSync(file.path);
-    //       } catch (cloudinaryError) {
-    //         console.error('Cloudinary upload error:', cloudinaryError.message);
-    //         return res.status(500).json({ message: 'Failed to upload file to Cloudinary', error: cloudinaryError.message });
-    //       }
-    //     }
-    //   }
+  try {
+    const {
+      name,
+      category,
+      batchNo,
+      expiryDate,
+      mrp,
+      cost,
+      sellingPrice, // Added sellingPrice field
+      qty,
+      productionDate,
+      qualityCheck,
+      machineNo,
+      demand,
+      barcode,
+      composition,
+      temperature,
+      rack
+    } = req.body;
+
+    const manufacturerId = req.user.id; // Use user ID from the middleware
+
+    let qualityCheckFiles = [];
+
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
-          console.log('File path:', file.path); // Log the file path
-          try {
-              let result;
-              if (file.mimetype.startsWith('image/')) {
-                  result = await cloudinary.uploader.upload(file.path);
-                  console.log(result);
-                  qualityCheckFiles.push({ type: 'image', url: result.url }); // Use result.url for non-secure URL
-              } else if (file.mimetype === 'application/pdf') {
-                  result = await cloudinary.uploader.upload(file.path, { resource_type: 'raw' });
-                  qualityCheckFiles.push({ type: 'pdf', url: result.url }); // Use result.url for non-secure URL
-              }
-          } catch (cloudinaryError) {
-              console.error('Cloudinary upload error:', cloudinaryError.message);
-              return res.status(500).json({ message: 'Failed to upload file to Cloudinary', error: cloudinaryError.message });
+        console.log('File path:', file.path); // Log the file path
+        try {
+          let result;
+          if (file.mimetype.startsWith('image/')) {
+            result = await cloudinary.uploader.upload(file.path);
+            console.log(result);
+            qualityCheckFiles.push({ type: 'image', url: result.url }); // Use result.url for non-secure URL
+          } else if (file.mimetype === 'application/pdf') {
+            result = await cloudinary.uploader.upload(file.path, { resource_type: 'raw' });
+            qualityCheckFiles.push({ type: 'pdf', url: result.url }); // Use result.url for non-secure URL
           }
+        } catch (cloudinaryError) {
+          console.error('Cloudinary upload error:', cloudinaryError.message);
+          return res.status(500).json({ message: 'Failed to upload file to Cloudinary', error: cloudinaryError.message });
+        }
       }
-  }
-  
-  
-      const newProduct = new ManufacturerProduct({
-        name,
-        category,
-        batchNo,
-        expiryDate,
-        mrp,
-        cost,
-        qty,
-        productionDate,
-        qualityCheck,
-        qualityCheckImages: qualityCheckFiles, // Include file uploads
-        machineNo,
-        demand,
-        barcode,
-        composition,
-        temperature,
-        rack,
-        manufacturer: manufacturerId // Set the manufacturer ID
-      });
-  
-      await newProduct.save();
-      res.status(201).json({ message: 'Inventory item added successfully', product: newProduct });
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to add inventory item', error: error.message });
     }
-  };
+
+    const newProduct = new ManufacturerProduct({
+      name,
+      category,
+      batchNo,
+      expiryDate,
+      mrp,
+      cost,
+      sellingPrice, // Include sellingPrice field here
+      qty,
+      productionDate,
+      qualityCheck,
+      qualityCheckImages: qualityCheckFiles, // Include file uploads
+      machineNo,
+      demand,
+      barcode,
+      composition,
+      temperature,
+      rack,
+      manufacturer: manufacturerId // Set the manufacturer ID
+    });
+
+    await newProduct.save();
+    res.status(201).json({ message: 'Inventory item added successfully', product: newProduct });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to add inventory item', error: error.message });
+  }
+};
 
 // Controller to get all inventory data
 exports.getInventory = async (req, res) => {
