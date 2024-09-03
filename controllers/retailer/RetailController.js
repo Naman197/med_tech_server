@@ -139,10 +139,11 @@ exports.loginUser = async (req, res) => {
 
       // Send response with access token
       res.status(200).json({
-          message: 'Login successful',
-          user,
-          accessToken,
-      });
+        message: 'Login successful',
+        user,
+        token: accessToken, // Change accessToken to token
+    });
+    
   } catch (err) {
       console.error('Error during login:', err);
       res.status(500).json({ error: 'Failed to login user' });
