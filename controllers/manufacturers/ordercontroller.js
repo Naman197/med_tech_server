@@ -544,7 +544,7 @@ const setOrderStatus = async (req, res) => {
                             mrp: medicine.mrp,
                             cost: medicine.cost,
                             deliveredDateTemperature: medicine.temperature,
-                            rack: medicine.rack,
+                            // rack: medicine.rack,
                             composition: medicine.composition
                         }
                     },
