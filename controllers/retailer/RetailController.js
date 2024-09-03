@@ -98,7 +98,7 @@ exports.registerUser = async (req, res) => {
 
         // Store refresh token in the database (or in-memory for simplicity)
         // user.refreshToken = refreshToken;
-        await user.save();
+        // await user.save();
 
         res.status(200).json({
             message: 'Login successful',
