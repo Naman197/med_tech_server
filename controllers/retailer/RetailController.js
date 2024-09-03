@@ -41,39 +41,75 @@ exports.registerUser = async (req, res) => {
   };
   
   // User login
+  // exports.loginUser = async (req, res) => {
+  //   try {
+  //     const { email, password } = req.body;
+  
+  //     const user = await RetailUser.findOne({ email });
+  //     if (!user) {
+  //       return res.status(400).json({ error: 'Invalid email or password' });
+  //     }
+  
+  //     const isMatch = await bcrypt.compare(password, user.password);
+  //     if (!isMatch) {
+  //       return res.status(400).json({ error: 'Invalid email or password' });
+  //     }
+  
+  //     console.log(user);
+  //     const accessToken = generateAccessToken(user);
+  //     // const refreshToken = generateRefreshToken(user);
+  //     console.log(accessToken);
+  
+  //     // Store refresh token in the database (or in-memory for simplicity)
+  //     // user.refreshToken = refreshToken;
+  //     await user.save();
+  
+  //     res.status(200).json({
+  //       message: 'Login successful',
+  //       user,
+  //       accessToken,
+  //       // refreshToken
+  //     });
+  //   } catch (err) {
+  //     res.status(500).json({ error: 'Failed to login user' });
+  //   }
+  // };
+
   exports.loginUser = async (req, res) => {
     try {
-      const { email, password } = req.body;
-  
-      const user = await RetailUser.findOne({ email });
-      if (!user) {
-        return res.status(400).json({ error: 'Invalid email or password' });
-      }
-  
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ error: 'Invalid email or password' });
-      }
-  
-      console.log(user);
-      const accessToken = generateAccessToken(user);
-      // const refreshToken = generateRefreshToken(user);
-      console.log(accessToken);
-  
-      // Store refresh token in the database (or in-memory for simplicity)
-      // user.refreshToken = refreshToken;
-      await user.save();
-  
-      res.status(200).json({
-        message: 'Login successful',
-        user,
-        accessToken,
-        // refreshToken
-      });
+        const { emailAddress, password } = req.body; // Changed to emailAddress
+
+        // Find user by emailAddress
+        const user = await RetailUser.findOne({ email: emailAddress }); // Use emailAddress here
+        if (!user) {
+            return res.status(400).json({ error: 'Invalid email or password' });
+        }
+
+        // Check if password matches
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ error: 'Invalid email or password' });
+        }
+
+        console.log(user);
+        const accessToken = generateAccessToken(user);
+        // const refreshToken = generateRefreshToken(user);
+        console.log(accessToken);
+
+        // Store refresh token in the database (or in-memory for simplicity)
+        // user.refreshToken = refreshToken;
+        await user.save();
+
+        res.status(200).json({
+            message: 'Login successful',
+            user,
+            accessToken,
+            // refreshToken
+        });
     } catch (err) {
-      res.status(500).json({ error: 'Failed to login user' });
+        res.status(500).json({ error: 'Failed to login user' });
     }
-  };
+};
   
 // Token refresh
 exports.refreshToken = async (req, res) => {
