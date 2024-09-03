@@ -36,7 +36,9 @@ const OrderSchema = new Schema({
     paymentDate: { type: Date }
   },
   boxNo: { type: String },
-  qrCode: { type: String },
+  // qrCode: { type: String },
+  qrCode: { type: Schema.Types.ObjectId, ref: 'QRCode' }, // Reference to QRCode model
+
   
   billingDetails: {
     totalAmount: { type: Number }, // Total amount of the order

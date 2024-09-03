@@ -542,7 +542,7 @@ const setOrderStatus = async (req, res) => {
                             category: medicine.category,
                             expiryDate: medicine.expiryDate,
                             mrp: medicine.mrp,
-                            cost: medicine.cost,
+                            cost: medicine.sellingPrice,
                             deliveredDateTemperature: medicine.temperature,
                             // rack: medicine.rack,
                             composition: Array.isArray(medicine.composition) ? medicine.composition.join(', ') : medicine.composition
