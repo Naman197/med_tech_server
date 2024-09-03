@@ -3,6 +3,7 @@ const Order = require('../../models/manufacturers/orders');
 const Distributor = require('../../models/distributors/distributorUser');
 const Manufacturer = require('../../models/manufacturers/user');
 const ManufacturerProduct = require('../../models/manufacturers/inventory');
+const DistProduct=require('../../models/distributors/inventory');
 const cloudinary = require('../../config/cloudinary'); 
 const fs = require('fs'); 
 
@@ -359,6 +360,31 @@ const updateBillingDetails = async (req, res) => {
 };
 
 
+// const setOrderStatus = async (req, res) => {
+//     const { orderId } = req.params;
+//     const { status } = req.body;
+
+//     try {
+//         const validStatuses = ['Shipped', 'Delivered'];
+//         if (!validStatuses.includes(status)) {
+//             return res.status(400).json({ message: 'Invalid status' });
+//         }
+
+//         const order = await Order.findById(orderId);
+//         if (!order) {
+//             return res.status(404).json({ message: 'Order not found' });
+//         }
+     
+//         // Update order status
+//         order.orderStatus = status;
+
+//         await order.save();
+//         res.status(200).json({ message: 'Order status updated successfully', order });
+//     } catch (error) {
+//         res.status(500).json({ message: 'Failed to update order status', error: error.message });
+//     }
+// };
+
 const setOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
@@ -377,12 +403,28 @@ const setOrderStatus = async (req, res) => {
         // Update order status
         order.orderStatus = status;
 
+        if (status === 'Delivered') {
+            // Find the distributor associated with the order
+            const distributorId = order.distributor.distributorId;
+
+            // Update inventory for the specific distributor when the order is delivered
+            for (const medicine of order.medicines) {
+                await DistProduct.findOneAndUpdate(
+                    { distributor: distributorId, name: medicine.name, batchNo: medicine.batchNo },
+                    { $inc: { qty: medicine.qty } },
+                    { upsert: true } // If the document doesn't exist, create it
+                );
+            }
+        }
+
         await order.save();
         res.status(200).json({ message: 'Order status updated successfully', order });
     } catch (error) {
         res.status(500).json({ message: 'Failed to update order status', error: error.message });
     }
 };
+
+
 const addFeedback = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -506,6 +548,92 @@ const addFeedback = async (req, res) => {
 //         res.status(500).json({ message: 'Failed to create return order', error: error.message });
 //     }
 // };
+
+
+
+// const createReturnOrder = async (req, res) => {
+//     try {
+//         const {
+//             manufacturerName,
+//             medicines,
+//             billingDetails = {},
+//             returnReason,
+//             returnDate
+//         } = req.body;
+
+//         if (!medicines || !Array.isArray(medicines) || medicines.length === 0) {
+//             return res.status(400).json({ message: 'Medicines array is required' });
+//         }
+
+//         for (const medicine of medicines) {
+//             if (!medicine.qty) {
+//                 return res.status(400).json({ message: 'Medicine qty is required' });
+//             }
+//         }
+
+//         // Extract distributorId from authenticated user
+//         const distributorId = req.user.id;
+
+//         // Find the distributor and manufacturer details
+//         const distributor = await Distributor.findById(distributorId);
+//         if (!distributor) {
+//             return res.status(404).json({ message: 'Distributor not found' });
+//         }
+
+//         const manufacturer = await Manufacturer.findOne({ organizationName: manufacturerName });
+//         if (!manufacturer) {
+//             return res.status(404).json({ message: 'Manufacturer not found' });
+//         }
+
+//         // Process medicines and fetch details
+//         const populatedMedicines = [];
+//         for (const medicine of medicines) {
+//             const product = await ManufacturerProduct.findOne({ name: medicine.name });
+//             if (product) {
+//                 populatedMedicines.push({
+//                     ...medicine,
+//                     manufacturerId: product._id,
+//                     batchNo: product.batchNo,
+//                     mrp: product.mrp,
+//                     cost: product.cost,
+//                     productionDate: product.productionDate,
+//                     expiryDate: product.expiryDate,
+//                     composition: product.composition,
+//                     temperature: product.temperature
+//                 });
+//             } else {
+//                 return res.status(404).json({ message: `Medicine '${medicine.name}' not found` });
+//             }
+//         }
+
+//         // Create new return order
+//         const newOrder = new Order({
+//             distributor: {
+//                 distributorId: distributor._id,
+//                 name: distributor.fullName
+//             },
+//             manufacturer: {
+//                 manufacturerId: manufacturer._id,
+//                 name: manufacturer.name
+//             },
+//             medicines: populatedMedicines,
+//             billingDetails: billingDetails || {},
+//             orderType: 'Returned', // Set the order type to 'Returned'
+//             returnDetails: {
+//                 reason: returnReason,
+//                 returnDate: returnDate || new Date()
+//             }
+//         });
+
+//         await newOrder.save();
+
+//         res.status(201).json({ message: 'Return order created successfully', order: newOrder });
+//     } catch (error) {
+//         res.status(500).json({ message: 'Failed to create return order', error: error.message });
+//     }
+// };
+
+
 const createReturnOrder = async (req, res) => {
     try {
         const {
@@ -582,11 +710,20 @@ const createReturnOrder = async (req, res) => {
 
         await newOrder.save();
 
+        // Update inventory for the distributor to reflect the returned products
+        for (const medicine of populatedMedicines) {
+            await DistProduct.findOneAndUpdate(
+                { distributor: distributorId, name: medicine.name, batchNo: medicine.batchNo },
+                { $inc: { qty: -medicine.qty } } // Subtract the returned quantity from inventory
+            );
+        }
+
         res.status(201).json({ message: 'Return order created successfully', order: newOrder });
     } catch (error) {
         res.status(500).json({ message: 'Failed to create return order', error: error.message });
     }
 };
+
 
 module.exports = {
     createOrder,
