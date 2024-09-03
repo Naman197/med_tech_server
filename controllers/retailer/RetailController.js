@@ -3,9 +3,9 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const generateAccessToken=require('../../utils/generateToken');
 // Generate tokens
-// const generateAccessToken = (user) => {
-//   return jwt.sign({ id: user._id }, 1234, { expiresIn: '45m' }); // Access token expires in 15 minutes
-// };
+const generateAccessToken = (user) => {
+  return jwt.sign({ id: user._id }, 1234, { expiresIn: '45m' }); // Access token expires in 15 minutes
+};
 
 const generateRefreshToken = (user) => {
   return jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' }); // Refresh token expires in 7 days
@@ -75,40 +75,78 @@ exports.registerUser = async (req, res) => {
   //   }
   // };
 
-  exports.loginUser = async (req, res) => {
-    try {
-        const { emailAddress, password } = req.body; // Changed to emailAddress
+//   exports.loginUser = async (req, res) => {
+//     try {
+//         const { emailAddress, password } = req.body; // Changed to emailAddress
 
-        // Find user by emailAddress
-        const user = await RetailUser.findOne({ email: emailAddress }); // Use emailAddress here
-        if (!user) {
-            return res.status(400).json({ error: 'Invalid email or password' });
-        }
+//         // Find user by emailAddress
+//         const user = await RetailUser.findOne({ email: emailAddress }); // Use emailAddress here
+//         if (!user) {
+//             return res.status(400).json({ error: 'Invalid email or password' });
+//         }
 
-        // Check if password matches
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ error: 'Invalid email or password' });
-        }
+//         // Check if password matches
+//         const isMatch = await bcrypt.compare(password, user.password);
+//         if (!isMatch) {
+//             return res.status(400).json({ error: 'Invalid email or password' });
+//         }
 
-        console.log(user);
-        const accessToken = generateAccessToken(user);
-        // const refreshToken = generateRefreshToken(user);
-        console.log(accessToken);
+//         console.log(user);
+//         const accessToken = generateAccessToken(user);
+//         // const refreshToken = generateRefreshToken(user);
+//         console.log(accessToken);
 
-        // Store refresh token in the database (or in-memory for simplicity)
-        // user.refreshToken = refreshToken;
-        // await user.save();
+//         // Store refresh token in the database (or in-memory for simplicity)
+//         // user.refreshToken = refreshToken;
+//         // await user.save();
 
-        res.status(200).json({
-            message: 'Login successful',
-            user,
-            accessToken,
-            // refreshToken
-        });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to login user' });
-    }
+//         res.status(200).json({
+//             message: 'Login successful',
+//             user,
+//             accessToken,
+//             // refreshToken
+//         });
+//     } catch (err) {
+//         res.status(500).json({ error: 'Failed to login user' });
+//     }
+// };
+
+exports.loginUser = async (req, res) => {
+  try {
+      const { emailAddress, password } = req.body;
+
+      // Find user by emailAddress
+      const user = await RetailUser.findOne({ email: emailAddress });
+      if (!user) {
+          return res.status(400).json({ error: 'Invalid email or password' });
+      }
+
+      // Check if password matches
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+          return res.status(400).json({ error: 'Invalid email or password' });
+      }
+
+      console.log('User found:', user);
+
+      // Generate access token
+      const accessToken = generateAccessToken(user);
+      if (!accessToken) {
+          throw new Error('Failed to generate access token');
+      }
+
+      console.log('Access Token:', accessToken);
+
+      // Send response with access token
+      res.status(200).json({
+          message: 'Login successful',
+          user,
+          accessToken,
+      });
+  } catch (err) {
+      console.error('Error during login:', err);
+      res.status(500).json({ error: 'Failed to login user' });
+  }
 };
   
 // Token refresh
