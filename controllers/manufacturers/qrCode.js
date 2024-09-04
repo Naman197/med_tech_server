@@ -5,7 +5,7 @@ const QRCode = require('../../models/manufacturers/qrCode'); // Import QRCode mo
 // Get QR code by QR code ID
 const getQRCodeById = async (req, res) => {
     const { id } = req.params;
-
+     console.log("hello",id);
     try {
         const qrCode = await QRCode.findById(id).populate('orderId distributorId manufacturerId');
         if (!qrCode) {
