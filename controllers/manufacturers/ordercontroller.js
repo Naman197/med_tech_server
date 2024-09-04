@@ -540,11 +540,6 @@ const updatePaymentStatus = async (req, res) => {
 // };
 
 
-const fs = require('fs');
-const cloudinary = require('cloudinary').v2;
-const Order = require('../models/Order');
-const QRCode = require('../models/QRCode'); // Assuming you have a QRCode model
-
 const updateBillingDetails = async (req, res) => {
     const { orderId } = req.params;
     const { totalAmount, invoiceNumber } = req.body;
