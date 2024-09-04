@@ -603,7 +603,6 @@ const updateBillingDetails = async (req, res) => {
         // Create a new QR code document
         const qrCode = new QRCode({
             qrCode: qrCodeValue,
-            location: order.deliveryLocation,
             number: `QR-${orderId}`,
             condition: 'Pending',
             orderId: order._id,
@@ -613,7 +612,7 @@ const updateBillingDetails = async (req, res) => {
             boxImage: boxImageUrl || null, // If the box image was uploaded
             qrCodeUrl: qrCodeUrl // URL of the generated QR code image
         });
-
+        
         await qrCode.save();
 
         // Update order with the QR code ID
