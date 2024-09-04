@@ -1,5 +1,6 @@
 // controllers/qrCodeController.js
 
+const { response } = require('express');
 const QRCode = require('../../models/manufacturers/qrCode'); // Import QRCode model
 
 // Get QR code by QR code ID
@@ -35,6 +36,7 @@ const getQRCodeByOrderAndDistributor = async (req, res) => {
 };
 const updateQRCodeOnScan = async (req, res) => {
     const { distributorId, orderId, location } = req.body; // Data from the request body
+    console.log("hi1",location);
 
     try {
         // Find the QR code based on distributorId and orderId

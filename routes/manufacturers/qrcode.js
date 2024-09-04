@@ -11,6 +11,6 @@ router.get('/:id', qrCodeController.getQRCodeById);
 // Route to get QR code by order ID and distributor ID
 router.get('/qrcodes', authenticateToken, qrCodeController.getQRCodeByOrderAndDistributor);
 
-router.put('/qrcodes/scan', authenticateToken, qrCodeController.updateQRCodeOnScan);
+router.put('/qrcodes/scan',qrCodeController.updateQRCodeOnScan);
 
 module.exports = router;

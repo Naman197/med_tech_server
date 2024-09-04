@@ -70,7 +70,7 @@ const updateMargin = async (req, res) => {
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
-
+  console.log(product.cost);
         // Calculate the selling price based on the cost price and margin
         const sellingPrice = product.cost + (product.cost * (margin / 100));
 
