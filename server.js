@@ -75,7 +75,7 @@ const express = require('express');
    const manfOrders = require('./routes/manufacturers/orderRoutes');
    const distributorsinvRoute=require('./routes/distrubutors/inventoryRoutes');
    const dotenv = require('dotenv');
-
+const manfQr=require('./routes/manufacturers/qrcode');
    
    dotenv.config();
 
@@ -95,9 +95,9 @@ const express = require('express');
 
 
    app.use('/api/manufacturers/inv',manfinvroute );
-
    app.use('/api/manufacturers/auth', manfAuthRoute);
    app.use('/api/manufacturers/orders', manfOrders);
+   app.use('/api/manufacturers/qrcode', manfQr);
 
 
    app.use('/api/distributors/auth',distributorsAuthRoute);

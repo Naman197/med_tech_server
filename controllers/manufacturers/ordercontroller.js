@@ -6,6 +6,7 @@ const ManufacturerProduct = require('../../models/manufacturers/inventory');
 const DistProduct=require('../../models/distributors/inventory');
 const cloudinary = require('../../config/cloudinary'); 
 const fs = require('fs'); 
+const QRCode  = require('../../models/manufacturers/qrCode');
 
 // Create a new order
 // const createOrder = async (req, res) => {
@@ -379,20 +380,82 @@ const updatePaymentStatus = async (req, res) => {
     }
 };
 
+// const updateBillingDetails = async (req, res) => {
+//     const { orderId } = req.params;
+//     const { totalAmount, invoiceNumber } = req.body;
+    
+//     console.log('Updating billing details for order:', orderId);
+
+//     try {
+//         const order = await Order.findById(orderId);
+//         if (!order) {
+//             console.log('Order not found:', orderId);
+//             return res.status(404).json({ message: 'Order not found' });
+//         }
+        
+//         let billingPdfUrl = order.billingDetails.billingPdf;
+//         if (req.file) {
+//             console.log('Attempting to upload file to Cloudinary');
+//             try {
+//                 const result = await cloudinary.uploader.upload(req.file.path, {
+//                     resource_type: 'auto',
+//                     access_mode: 'public',
+//                     folder: 'billing_pdfs'
+//                 });
+//                 console.log('Cloudinary upload result:', JSON.stringify(result, null, 2));
+                
+//                 billingPdfUrl = result.url;
+//                 console.log('File uploaded successfully. URL:', billingPdfUrl);
+
+//                 // Remove local file
+//                 fs.unlinkSync(req.file.path);
+//                 console.log('Local file removed');
+
+//             } catch (uploadError) {
+//                 console.error('Cloudinary upload error:', uploadError);
+//                 return res.status(500).json({ message: 'Failed to upload file', error: uploadError.message });
+//             }
+//         }
+        
+//         // Update billing details
+//         order.billingDetails.totalAmount = totalAmount || order.billingDetails.totalAmount;
+//         order.billingDetails.invoiceNumber = invoiceNumber || order.billingDetails.invoiceNumber;
+//         order.billingDetails.billingPdf = billingPdfUrl;
+//         order.billingDetails.billingDate = new Date();
+        
+//         order.orderStatus = 'Success';
+        
+//         await order.save();
+//         console.log('Order updated successfully');
+//         res.status(200).json({ 
+//             message: 'Billing details and order status updated successfully', 
+//             order,
+//             billingPdfUrl
+//         });
+//     } catch (error) {
+//         console.error('Error updating billing details:', error);
+//         res.status(500).json({ message: 'Failed to update billing details and order status', error: error.toString() });
+//     }
+// };
+
+
 const updateBillingDetails = async (req, res) => {
     const { orderId } = req.params;
     const { totalAmount, invoiceNumber } = req.body;
-    
+
     console.log('Updating billing details for order:', orderId);
 
     try {
-        const order = await Order.findById(orderId);
+        // Find the order by ID
+        const order = await Order.findById(orderId).populate('manufacturerId distributorId');
         if (!order) {
             console.log('Order not found:', orderId);
             return res.status(404).json({ message: 'Order not found' });
         }
-        
+
         let billingPdfUrl = order.billingDetails.billingPdf;
+        let boxImageUrl;
+
         if (req.file) {
             console.log('Attempting to upload file to Cloudinary');
             try {
@@ -415,27 +478,71 @@ const updateBillingDetails = async (req, res) => {
                 return res.status(500).json({ message: 'Failed to upload file', error: uploadError.message });
             }
         }
-        
+
+        if (req.body.boxImageFile) {
+            try {
+                const boxImageResult = await cloudinary.uploader.upload(req.body.boxImageFile.path, {
+                    resource_type: 'image',
+                    access_mode: 'public',
+                    folder: 'box_images'
+                });
+                boxImageUrl = boxImageResult.url;
+            } catch (uploadError) {
+                console.error('Cloudinary upload error:', uploadError);
+                return res.status(500).json({ message: 'Failed to upload box image', error: uploadError.message });
+            }
+        }
+
+        // Generate QR code value and URL
+        const qrCodeValue = `QR_${orderId}_${new Date().getTime()}`;
+        const qrCodeUrl = `https://example.com/qrcodes/${qrCodeValue}`; // Modify this URL generation as needed
+
+        // Create a new QR code document
+        const qrCode = new QRCode({
+            qrCode: qrCodeValue,
+            location: order.deliveryLocation,
+            number: `QR-${orderId}`,
+            condition: 'Pending',
+            orderId: order._id,
+            distributorId: order.distributorId._id,
+            manufacturerId: order.manufacturerId._id,
+            accessDate: null, // Set when QR code is scanned
+            boxImage: boxImageUrl || null, // If the box image was uploaded
+            qrCodeUrl: qrCodeUrl // URL of the generated QR code image
+        });
+
+        await qrCode.save();
+
+        // Update order with the QR code ID
+        order.qrCode = qrCode._id;
+
         // Update billing details
         order.billingDetails.totalAmount = totalAmount || order.billingDetails.totalAmount;
         order.billingDetails.invoiceNumber = invoiceNumber || order.billingDetails.invoiceNumber;
         order.billingDetails.billingPdf = billingPdfUrl;
         order.billingDetails.billingDate = new Date();
-        
+
         order.orderStatus = 'Success';
-        
+
         await order.save();
         console.log('Order updated successfully');
         res.status(200).json({ 
             message: 'Billing details and order status updated successfully', 
             order,
-            billingPdfUrl
+            billingPdfUrl,
+            qrCodeValue, // Return the QR code value for reference
+            qrCodeUrl   // Return the QR code URL
         });
     } catch (error) {
         console.error('Error updating billing details:', error);
         res.status(500).json({ message: 'Failed to update billing details and order status', error: error.toString() });
     }
 };
+
+
+
+
+
 
 
 // const setOrderStatus = async (req, res) => {
