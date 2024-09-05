@@ -5,9 +5,72 @@ const fs = require('fs');
 const path = require('path');
 
 // Controller function for manufacturer registration
+// exports.registerManufacturer = async (req, res) => {
+//     try {
+//         const { fullName, organizationName, emailAddress, phoneNumber, password, address } = req.body;
+
+//         // Check if the manufacturer already exists
+//         const existingManufacturer = await Manufacturer.findOne({ emailAddress });
+//         if (existingManufacturer) {
+//             return res.status(400).json({ message: 'Manufacturer already exists.' });
+//         }
+
+//         // Hash the password
+//         const hashedPassword = await bcrypt.hash(password, 10);
+
+//         // Create a new manufacturer
+//         const newManufacturer = new Manufacturer({
+//             fullName,
+//             organizationName,
+//             emailAddress,
+//             phoneNumber,
+//             password: hashedPassword,
+//             address,
+//             role: 'Manufacturer'
+//         });
+
+//         // Handle uploaded documents
+//         if (req.files) {
+//             newManufacturer.uploadedDocuments = req.files.map(file => file.path);
+//         }
+
+//         // Save the manufacturer to the database
+//         await newManufacturer.save();
+
+//         res.status(201).json({ message: 'Manufacturer registered successfully.', manufacturerId: newManufacturer._id });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: 'Server error during registration.' });
+//     }
+// };
+
 exports.registerManufacturer = async (req, res) => {
     try {
-        const { fullName, organizationName, emailAddress, phoneNumber, password, address } = req.body;
+        const { 
+            fullName, 
+            organizationName, 
+            emailAddress, 
+            phoneNumber = {}, 
+            password, 
+            address = {}, 
+            securityQuestion, 
+            securityAnswer, 
+            captchaVerification, 
+            supplierId, 
+            businessRegistrationNumber, 
+            typeOfProductsSupplied = [], 
+            licenseNumber, 
+            yearsInOperation, 
+            preferredPaymentMethod, 
+            bankAccountDetails = {}, 
+            alternateContactInformation = {}, 
+            agreeToTermsAndConditions 
+        } = req.body;
+
+        // Validate required fields
+        if (!emailAddress || !password) {
+            return res.status(400).json({ message: 'Email address and password are required.' });
+        }
 
         // Check if the manufacturer already exists
         const existingManufacturer = await Manufacturer.findOne({ emailAddress });
@@ -26,10 +89,22 @@ exports.registerManufacturer = async (req, res) => {
             phoneNumber,
             password: hashedPassword,
             address,
+            securityQuestion,
+            securityAnswer,
+            captchaVerification,
+            supplierId,
+            businessRegistrationNumber,
+            typeOfProductsSupplied,
+            licenseNumber,
+            yearsInOperation,
+            preferredPaymentMethod,
+            bankAccountDetails,
+            alternateContactInformation,
+            agreeToTermsAndConditions,
             role: 'Manufacturer'
         });
 
-        // Handle uploaded documents
+        // Handle uploaded documents if any
         if (req.files) {
             newManufacturer.uploadedDocuments = req.files.map(file => file.path);
         }
@@ -43,6 +118,7 @@ exports.registerManufacturer = async (req, res) => {
         res.status(500).json({ message: 'Server error during registration.' });
     }
 };
+
 
 // Controller function for manufacturer login
 exports.loginManufacturer = async (req, res) => {

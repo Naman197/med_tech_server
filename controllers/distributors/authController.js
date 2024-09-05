@@ -7,7 +7,30 @@ const path = require('path');
 // Controller function for distributor registration
 exports.registerDistributor = async (req, res) => {
     try {
-        const { fullName, organizationName, emailAddress, phoneNumber, password, address, licenseNumber } = req.body;
+        const { 
+            fullName, 
+            organizationName, 
+            emailAddress, 
+            phoneNumber = {}, 
+            password, 
+            address = {}, 
+            licenseNumber, 
+            securityQuestion, 
+            securityAnswer, 
+            captchaVerification, 
+            distributorId, 
+            warehouseLocations = [], 
+            vehicleFleetDetails = {}, 
+            regionsCovered = [], 
+            preferredShippingMethod, 
+            alternateContactInformation = {}, 
+            agreeToTermsAndConditions 
+        } = req.body;
+
+        // Validate required fields
+        if (!emailAddress || !password) {
+            return res.status(400).json({ message: 'Email address and password are required.' });
+        }
 
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -21,8 +44,22 @@ exports.registerDistributor = async (req, res) => {
             password: hashedPassword,
             address,
             licenseNumber,
-            // uploadedDocuments: req.files.map(file => file.path)
+            securityQuestion,
+            securityAnswer,
+            captchaVerification,
+            distributorId,
+            warehouseLocations,
+            vehicleFleetDetails,
+            regionsCovered,
+            preferredShippingMethod,
+            alternateContactInformation,
+            agreeToTermsAndConditions
         });
+
+        // Handle uploaded documents if any
+        if (req.files) {
+            newDistributor.uploadedDocuments = req.files.map(file => file.path);
+        }
 
         // Save the distributor to the database
         await newDistributor.save();

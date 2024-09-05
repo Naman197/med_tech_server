@@ -13,32 +13,102 @@ const generateRefreshToken = (user) => {
 
 // User registration
 // User registration
+// exports.registerUser = async (req, res) => {
+//     try {
+//       const { name, email, uniqueId, password, role } = req.body; // Include role
+  
+//       const existingUser = await RetailUser.findOne({ email });
+//       if (existingUser) {
+//         return res.status(400).json({ error: 'Email already in use' });
+//       }
+  
+//       const hashedPassword = await bcrypt.hash(password, 10);
+  
+//       const newUser = new RetailUser({
+//         name,
+//         email,
+//         uniqueId,
+//         password: hashedPassword,
+//         role: role || 'retailer' // Set default role if not provided
+//       });
+//       console.log(newUser);
+//       await newUser.save();
+  
+//       res.status(201).json({ message: 'User registered successfully' });
+//     } catch (err) {
+//       res.status(500).json({ error: 'Failed to register user' });
+//     }
+//   };
+
+
 exports.registerUser = async (req, res) => {
-    try {
-      const { name, email, uniqueId, password, role } = req.body; // Include role
-  
-      const existingUser = await RetailUser.findOne({ email });
+  try {
+      const { 
+          fullName, 
+          organizationName, 
+          emailAddress, 
+          phoneNumber = {}, 
+          password, 
+          address = {}, 
+          securityQuestion, 
+          securityAnswer, 
+          captchaVerification, 
+          retailerId, 
+          licenseNumber, 
+          storeType, 
+          hoursOfOperation = {}, 
+          typesOfProductsSold = [], 
+          paymentMethodsAccepted = [], 
+          alternateContactInformation = {}, 
+          agreeToTermsAndConditions 
+      } = req.body;
+
+      // Check if the user already exists
+      const existingUser = await RetailUser.findOne({ emailAddress });
       if (existingUser) {
-        return res.status(400).json({ error: 'Email already in use' });
+          return res.status(400).json({ error: 'Email already in use' });
       }
-  
+
+      // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
-  
+
+      // Create a new user
       const newUser = new RetailUser({
-        name,
-        email,
-        uniqueId,
-        password: hashedPassword,
-        role: role || 'retailer' // Set default role if not provided
+          fullName,
+          organizationName,
+          emailAddress,
+          phoneNumber,
+          password: hashedPassword,
+          address,
+          securityQuestion,
+          securityAnswer,
+          captchaVerification,
+          retailerId,
+          licenseNumber,
+          storeType,
+          hoursOfOperation,
+          typesOfProductsSold,
+          paymentMethodsAccepted,
+          alternateContactInformation,
+          agreeToTermsAndConditions,
+          role: 'Retailer' // Default role as 'Retailer'
       });
-      console.log(newUser);
+
+      // Handle uploaded documents if any
+      if (req.files) {
+          newUser.uploadedDocuments = req.files.map(file => file.path);
+      }
+
+      // Save the user to the database
       await newUser.save();
-  
+
       res.status(201).json({ message: 'User registered successfully' });
-    } catch (err) {
+  } catch (err) {
+      console.error(err);
       res.status(500).json({ error: 'Failed to register user' });
-    }
-  };
+  }
+};
+
   
   // User login
   // exports.loginUser = async (req, res) => {
