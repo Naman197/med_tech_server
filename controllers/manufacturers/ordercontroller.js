@@ -226,7 +226,7 @@ const getOrdersByManufacturer = async (req, res) => {
         })
         .populate('manufacturer.manufacturerId', 'name')
         .populate({
-            path: 'medicines.manufacturerId',
+            path: 'medicines',
             select: 'name batchNo mrp cost productionDate expiryDate composition temperature sellingPrice' // Added sellingPrice
 
         });
