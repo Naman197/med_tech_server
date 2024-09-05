@@ -15,5 +15,6 @@ router.post('/reset-password', manufacturersAuthController.resetPassword);
 
 // Route for updating manufacturer profile with file upload handling
 router.put('/update-profile', authenticateToken, upload.array('documents', 10), manufacturersAuthController.updateProfile);
+router.get('/profile', authenticateToken, manufacturersAuthController.getProfile);
 
 module.exports = router;

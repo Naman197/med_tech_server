@@ -66,7 +66,7 @@ exports.registerManufacturer = async (req, res) => {
             alternateContactInformation = {}, 
             agreeToTermsAndConditions 
         } = req.body;
-
+         console.log(req.body);
         // Validate required fields
         if (!emailAddress || !password) {
             return res.status(400).json({ message: 'Email address and password are required.' });
@@ -248,5 +248,21 @@ exports.updateProfile = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error during profile update.' });
+    }
+};
+
+// In manufacturersAuthController.js
+exports.getProfile = async (req, res) => {
+    try {
+        const manufacturerId = req.user.id; // Assuming you store user ID in req.user
+        const manufacturer = await Manufacturer.findById(manufacturerId); // Replace with your model and method
+
+        if (!manufacturer) {
+            return res.status(404).json({ message: 'Manufacturer not found' });
+        }
+
+        res.json(manufacturer);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
     }
 };

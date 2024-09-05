@@ -15,5 +15,8 @@ router.post('/reset-password', distributorsAuthController.resetPassword);
 
 // Route for updating distributor profile with file upload handling
 router.put('/update-profile', authenticateToken, upload.array('documents', 10), distributorsAuthController.updateProfile);
+// Route for fetching distributor profile
+router.get('/profile', authenticateToken, distributorsAuthController.getProfile);
+
 
 module.exports = router;

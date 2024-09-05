@@ -178,3 +178,19 @@ exports.updateProfile = async (req, res) => {
         res.status(500).json({ message: 'Server error during profile update.' });
     }
 };
+
+// In distributorsAuthController.js
+exports.getProfile = async (req, res) => {
+    try {
+        const distributorId = req.user.id; // Assuming you store user ID in req.user
+        const distributor = await Distributor.findById(distributorId); // Replace with your model and method
+
+        if (!distributor) {
+            return res.status(404).json({ message: 'Distributor not found' });
+        }
+
+        res.json(distributor);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
