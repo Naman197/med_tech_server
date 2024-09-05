@@ -12,7 +12,8 @@ const DistProductSchema = new Schema({
   qty: { type: Number },
   deliveredDateTemperature: { type: Number }, // Storage temperature if applicable
   rack: { type: String }, // Storage rack location
-  distributor: { type: Schema.Types.ObjectId, ref: 'Distributor' }, // Reference to Distributor
+  distributor: { type: Schema.Types.ObjectId, ref: 'Distributor' },
+  manufacturer: { type: Schema.Types.ObjectId, ref: 'Manufacturer' }, // Reference to Manufacturer
   composition: [
     {
       ingredient: { type: String },

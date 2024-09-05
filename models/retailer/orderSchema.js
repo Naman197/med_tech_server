@@ -1,97 +1,73 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-// Define the returned items schema
-const returnedItemsSchema = new mongoose.Schema({
-  quantity: {
-    type: Number,
-    required: true
-  },
-  returnReason: {
-    type: String,
-    required: true
-  },
-  returnDate: {
-    type: Date,
-    default: Date.now // Automatically sets the return date to the current date
-  }
-});
-
-// Main retail order schema with the returned items embedded
-const retailOrderSchema = new mongoose.Schema({
-  medicineName: {
-    type: String,
-    required: true
-  },
-  orderFormId: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  category: {
-    type: String,
-    required: true
-  },
-  batchNo: {
-    type: String,
-    required: true
-  },
-  expiryDate: {
-    type: Date,
-    required: true
-  },
-  mrp: {
-    type: Number,
-    required: true
-  },
-  buyingPrice: {
-    type: Number,
-    required: true
-  },
-  orderStatus: {
-    type: String,
-    enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'],
-    required: true
-  },
+const RetailOrder = new Schema({
   distributor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Distributor',
-    required: true
+    distributorId: { type: Schema.Types.ObjectId, ref: 'Distributor', required: true }, // Reference to Distributor
+    name: { type: String } // Name of the distributor (for convenience)
   },
-  totalQuantity: {
-    type: Number,
-    required: true
+  retailUser: { // Changed from 'retailer' to 'retailUser'
+    retailerId: { type: Schema.Types.ObjectId, ref: 'RetailUser', required: true }, // Reference to RetailUser
+    name: { type: String } // Name of the retail user (for convenience)
   },
-  returnedItems: [returnedItemsSchema], // Embedded schema to track returned items
-  refundStatus: {
-    type: String,
-    enum: ['None', 'Partial', 'Full'],
-    default: 'None'
+  medicines: [
+    {
+      name: { type: String, required: true }, // Medicine name
+      qty: { type: Number, required: true }, // Quantity ordered
+      manufacturerId: { type: Schema.Types.ObjectId, ref: 'ManufacturerProduct' }, // Reference to ManufacturerProduct
+      batchNo: { type: String },
+      mrp: { type: Number },
+      cost: { type: Number },
+      productionDate: { type: Date },
+      expiryDate: { type: Date },
+      composition: [
+        {
+          ingredient: { type: String },
+          quantity: { type: String }
+        }
+      ],
+      temperature: { type: String } // Storage temperature of the medicine
+    }
+  ],
+  orderStatus: { type: String, enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Failed', 'Success'], default: 'Pending' }, // Order status
+  paymentStatus: { type: String, enum: ['Pending', 'Completed'], default: 'Pending' }, // Payment status
+  paymentDetails: {
+    transactionId: { type: String },
+    paymentDate: { type: Date }
+  },
+  boxNo: { type: String },
+  qrCode: { type: Schema.Types.ObjectId, ref: 'QRCode' }, // Reference to QRCode model
+  
+  billingDetails: {
+    totalAmount: { type: Number }, // Total amount of the order
+    invoiceNumber: { type: String, unique: true }, // Unique invoice number
+    billingPdf: { type: String }, // Path or URL to the billing PDF
+    billingDate: { type: Date, default: Date.now } // Date of the invoice/billing
   },
   feedback: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Feedback'
+    comment: { type: String }, // Feedback comment from the retailer
+    rating: {
+      type: String,
+      enum: [
+        'Very Poor',   // 1
+        'Poor',        // 2
+        'Neutral',     // 3
+        'Good',        // 4
+        'Excellent'    // 5
+      ],
+      default: 'Neutral' // Default rating
+    },
+    feedbackDate: { type: Date, default: Date.now } // Date when feedback was provided
   },
-  orderDate: {
-    type: Date,
-    default: Date.now,
-    required: true
+  orderType: { 
+    type: String, 
+    enum: ['Placed', 'Returned'], 
   },
-  refundDate: {
-    type: Date,
-    default: null
-  },
-  retailUser: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'RetailUser', // Reference to the RetailUser schema
-    required: true
-  },
-  paymentStatus: {
-    type: String,
-    enum: ['Pending', 'Completed', 'Failed'],
-    default: 'Pending' // Default payment status
+  returnDetails: {
+    reason: { type: String },
+    returnDate: { type: Date }
   }
-});
+}, { timestamps: true });
 
-const RetailOrder = mongoose.model('RetailOrder', retailOrderSchema);
-
-module.exports = RetailOrder;
+const RetailOrderModel = mongoose.model('RetailOrder', RetailOrder);
+module.exports = RetailOrderModel;

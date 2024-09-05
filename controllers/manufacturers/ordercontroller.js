@@ -980,6 +980,98 @@ const addFeedback = async (req, res) => {
 //         res.status(500).json({ message: 'Failed to create return order', error: error.message });
 //     }
 // };
+// const createReturnOrder = async (req, res) => {
+//     try {
+//         const {
+//             manufacturerId,
+//             medicines,
+//             billingDetails = {},
+//             returnReason,
+//             returnDate
+//         } = req.body;
+
+//         if (!medicines || !Array.isArray(medicines) || medicines.length === 0) {
+//             return res.status(400).json({ message: 'Medicines array is required' });
+//         }
+
+//         for (const medicine of medicines) {
+//             if (!medicine.qty) {
+//                 return res.status(400).json({ message: 'Medicine qty is required' });
+//             }
+//         }
+
+//         const distributorId = req.user.id;
+
+//         const distributor = await Distributor.findById(distributorId);
+//         if (!distributor) {
+//             return res.status(404).json({ message: 'Distributor not found' });
+//         }
+
+//         const manufacturer = await Manufacturer.findById(manufacturerId);
+//         if (!manufacturer) {
+//             return res.status(404).json({ message: 'Manufacturer not found' });
+//         }
+
+//         const populatedMedicines = [];
+//         for (const medicine of medicines) {
+//             const product = await ManufacturerProduct.findOne({ name: medicine.name });
+//             if (product) {
+//                 populatedMedicines.push({
+//                     ...medicine,
+//                     manufacturerId: product._id,
+//                     batchNo: product.batchNo,
+//                     mrp: product.mrp,
+//                     cost: product.cost,
+//                     productionDate: product.productionDate,
+//                     expiryDate: product.expiryDate,
+//                     composition: product.composition,
+//                     temperature: product.temperature
+//                 });
+//             } else {
+//                 return res.status(404).json({ message: `Medicine '${medicine.name}' not found` });
+//             }
+//         }
+
+//         // Create new return order
+//         const newOrder = new Order({
+//             distributor: {
+//                 distributorId: distributor._id,
+//                 name: distributor.fullName
+//             },
+//             manufacturer: {
+//                 manufacturerId: manufacturer._id,
+//                 name: manufacturer.organizationName // Fetching the name from the manufacturer object
+//             },
+//             medicines: populatedMedicines,
+//             billingDetails: {
+//                 totalAmount: billingDetails.totalAmount,
+//                 invoiceNumber: billingDetails.invoiceNumber,
+//                 billingPdf: billingDetails.billingPdf,
+//                 billingDate: billingDetails.billingDate || new Date()
+//             },
+//             orderType: 'Returned', // Set the order type to 'Returned'
+//             returnDetails: {
+//                 reason: returnReason,
+//                 returnDate: returnDate || new Date()
+//             }
+//         });
+
+//         await newOrder.save();
+
+//         // Update inventory for the distributor to reflect the returned products
+//         for (const medicine of populatedMedicines) {
+//             await DistProduct.findOneAndUpdate(
+//                 { distributor: distributorId, name: medicine.name, batchNo: medicine.batchNo },
+//                 { $inc: { qty: -medicine.qty } } // Subtract the returned quantity from inventory
+//             );
+//         }
+
+//         res.status(201).json({ message: 'Return order created successfully', order: newOrder });
+//     } catch (error) {
+//         res.status(500).json({ message: 'Failed to create return order', error: error.message });
+//     }
+// };
+
 const createReturnOrder = async (req, res) => {
     try {
         const {
@@ -987,7 +1079,7 @@ const createReturnOrder = async (req, res) => {
             medicines,
             billingDetails = {},
             returnReason,
-            returnDate
+            returnDate = new Date()  // Set default returnDate to current date
         } = req.body;
 
         if (!medicines || !Array.isArray(medicines) || medicines.length === 0) {
@@ -1052,7 +1144,7 @@ const createReturnOrder = async (req, res) => {
             orderType: 'Returned', // Set the order type to 'Returned'
             returnDetails: {
                 reason: returnReason,
-                returnDate: returnDate || new Date()
+                returnDate: returnDate // Use the provided returnDate or default to current date
             }
         });
 
@@ -1071,6 +1163,7 @@ const createReturnOrder = async (req, res) => {
         res.status(500).json({ message: 'Failed to create return order', error: error.message });
     }
 };
+
 
 
 module.exports = {
