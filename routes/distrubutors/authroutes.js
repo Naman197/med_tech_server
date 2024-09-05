@@ -4,7 +4,6 @@ const upload = require('../../config/multer'); // Multer for file uploads
 const distributorsAuthController = require('../../controllers/distributors/authController');
  const authenticateToken = require('../../middleware/authenticateToken'); // Middleware for token authentication
 
-// Route for distributor registration with file upload handling
 router.post('/register', upload.array('documents', 10), distributorsAuthController.registerDistributor);
 
 // Route for distributor login

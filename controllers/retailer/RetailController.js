@@ -2,6 +2,8 @@ const RetailUser = require('../../models/retailer/retailUser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const generateAccessToken=require('../../utils/generateToken');
+
+
 // Generate tokens
 // const generateAccessToken = (user) => {
 //   return jwt.sign({ id: user._id }, 1234, { expiresIn: '45m' }); // Access token expires in 15 minutes
