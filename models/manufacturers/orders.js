@@ -73,7 +73,5 @@ deliveryDate: { type: Date } // Date when the order was delivered
 }, { timestamps: true }
 );
 
-
-
 const Order = mongoose.model('Order', OrderSchema);
 module.exports = Order;

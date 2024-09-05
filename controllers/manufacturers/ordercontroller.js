@@ -227,7 +227,8 @@ const getOrdersByManufacturer = async (req, res) => {
         .populate('manufacturer.manufacturerId', 'name')
         .populate({
             path: 'medicines.manufacturerId',
-            select: 'name batchNo mrp cost productionDate expiryDate composition temperature'
+            select: 'name batchNo mrp cost productionDate expiryDate composition temperature sellingPrice' // Added sellingPrice
+
         });
 
         if (!orders.length) {
@@ -684,7 +685,6 @@ const updateBillingDetails = async (req, res) => {
     }
 };
 
-module.exports = updateBillingDetails;
 
 
 
@@ -857,7 +857,7 @@ const addFeedback = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Failed to add feedback', error: error.message });
     }
-};
+}; 
 // const createReturnOrder = async (req, res) => {
 //     try {
 //         const {
