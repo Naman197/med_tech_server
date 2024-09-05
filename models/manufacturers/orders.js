@@ -36,7 +36,6 @@ const OrderSchema = new Schema({
     paymentDate: { type: Date }
   },
   boxNo: { type: String },
-  // qrCode: { type: String },
   qrCode: { type: Schema.Types.ObjectId, ref: 'QRCode' }, // Reference to QRCode model
 
   
@@ -68,7 +67,9 @@ orderType: {
 returnDetails: {
   reason: { type: String },
   returnDate: { type: Date }
-}
+},
+orderConfirmDate: { type: Date }, // Date when the order was confirmed
+deliveryDate: { type: Date } // Date when the order was delivered
 }, { timestamps: true }
 );
 

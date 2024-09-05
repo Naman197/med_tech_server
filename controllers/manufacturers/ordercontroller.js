@@ -105,7 +105,6 @@ const createOrder = async (req, res) => {
             }
         }
 
-        // Extract distributorId from authenticated user
         const distributorId = req.user.id;
 
         // Find the distributor and manufacturer details
@@ -183,7 +182,32 @@ const createOrder = async (req, res) => {
 //     }
 // };
 
+
+
+
 // // Get all orders for a manufacturer
+// const getOrdersByManufacturer = async (req, res) => {
+//     try {
+//         const manufacturerId = req.user.id; // Extracted from token
+
+//         // Fetch orders for the given manufacturer ID
+//         const orders = await Order.find({
+//             'manufacturer.manufacturerId': manufacturerId
+//         }).populate('distributor.distributorId', 'fullName address')
+//           .populate('manufacturer.manufacturerId', 'name')
+//           .populate('medicines.manufacturerId', 'name batchNo mrp cost productionDate expiryDate composition temperature');
+
+//         if (!orders.length) {
+//             return res.status(404).json({ message: 'No orders found for the given manufacturer.' });
+//         }
+
+//         res.status(200).json(orders);
+//     } catch (error) {
+//         res.status(500).json({ message: 'Failed to retrieve orders', error: error.message });
+//     }
+// };
+
+
 const getOrdersByManufacturer = async (req, res) => {
     try {
         const manufacturerId = req.user.id; // Extracted from token
@@ -191,9 +215,20 @@ const getOrdersByManufacturer = async (req, res) => {
         // Fetch orders for the given manufacturer ID
         const orders = await Order.find({
             'manufacturer.manufacturerId': manufacturerId
-        }).populate('distributor.distributorId', 'fullName address')
-          .populate('manufacturer.manufacturerId', 'name')
-          .populate('medicines.manufacturerId', 'name batchNo mrp cost productionDate expiryDate composition temperature');
+        })
+        .populate({
+            path: 'distributor.distributorId',
+            select: 'fullName address', // Adjust according to your schema
+            populate: {
+                path: 'address',
+                select: 'street city state postalCode country' // Ensure these fields exist in your Distributor schema
+            }
+        })
+        .populate('manufacturer.manufacturerId', 'name')
+        .populate({
+            path: 'medicines.manufacturerId',
+            select: 'name batchNo mrp cost productionDate expiryDate composition temperature'
+        });
 
         if (!orders.length) {
             return res.status(404).json({ message: 'No orders found for the given manufacturer.' });
@@ -204,6 +239,7 @@ const getOrdersByManufacturer = async (req, res) => {
         res.status(500).json({ message: 'Failed to retrieve orders', error: error.message });
     }
 };
+
 const confirmOrder = async (req, res) => {
     try {
       const { orderId } = req.params;
@@ -260,8 +296,15 @@ const confirmOrder = async (req, res) => {
       }
   
       // Update order status based on availability
-      if (allMedicinesAvailable) {
+    //   if (allMedicinesAvailable) {
+    //     order.orderStatus = 'Processing';
+    //   } else {
+    //     order.orderStatus = 'Failed';
+    //     order.failedMedicines = failedMedicines; // Optionally record failed medicines
+    //   }
+    if (allMedicinesAvailable) {
         order.orderStatus = 'Processing';
+        order.orderConfirmDate = new Date(); // Set the order confirm date to now
       } else {
         order.orderStatus = 'Failed';
         order.failedMedicines = failedMedicines; // Optionally record failed medicines
