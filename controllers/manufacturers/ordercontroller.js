@@ -208,6 +208,40 @@ const createOrder = async (req, res) => {
 // };
 
 
+// const getOrdersByManufacturer = async (req, res) => {
+//     try {
+//         const manufacturerId = req.user.id; // Extracted from token
+
+//         // Fetch orders for the given manufacturer ID
+//         const orders = await Order.find({
+//             'manufacturer.manufacturerId': manufacturerId
+//         })
+//         .populate({
+//             path: 'distributor.distributorId',
+//             select: 'fullName address', // Adjust according to your schema
+//             populate: {
+//                 path: 'address',
+//                 select: 'street city state postalCode country' // Ensure these fields exist in your Distributor schema
+//             }
+//         })
+//         .populate('manufacturer.manufacturerId', 'name')
+//         .populate({
+//             path: 'medicines',
+//             select: 'name batchNo mrp cost productionDate expiryDate composition temperature sellingPrice' // Added sellingPrice
+
+//         });
+
+//         if (!orders.length) {
+//             return res.status(404).json({ message: 'No orders found for the given manufacturer.' });
+//         }
+
+//         res.status(200).json(orders);
+//     } catch (error) {
+//         res.status(500).json({ message: 'Failed to retrieve orders', error: error.message });
+//     }
+// };
+
+
 const getOrdersByManufacturer = async (req, res) => {
     try {
         const manufacturerId = req.user.id; // Extracted from token
@@ -221,14 +255,13 @@ const getOrdersByManufacturer = async (req, res) => {
             select: 'fullName address', // Adjust according to your schema
             populate: {
                 path: 'address',
-                select: 'street city state postalCode country' // Ensure these fields exist in your Distributor schema
+                select: 'street city state postalCode country'
             }
         })
         .populate('manufacturer.manufacturerId', 'name')
         .populate({
-            path: 'medicines',
-            select: 'name batchNo mrp cost productionDate expiryDate composition temperature sellingPrice' // Added sellingPrice
-
+            path: 'medicines.manufacturerId', // Populate from ManufacturerProduct
+            select: 'name batchNo mrp cost sellingPrice productionDate expiryDate composition temperature'
         });
 
         if (!orders.length) {
