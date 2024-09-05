@@ -18,6 +18,7 @@ const OrderSchema = new Schema({
       batchNo: { type: String },
       mrp: { type: Number },
       cost: { type: Number },
+      sellingPrice: { type: Number },
       productionDate: { type: Date },
       expiryDate: { type: Date },
       composition: [
