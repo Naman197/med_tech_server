@@ -205,6 +205,7 @@ const createOrder = async (req, res) => {
                     batchNo: product.batchNo,
                     mrp: product.mrp,
                     cost: product.cost,
+                    sellingPrice: product.sellingPrice,
                     productionDate: product.productionDate,
                     expiryDate: product.expiryDate,
                     composition: product.composition,
