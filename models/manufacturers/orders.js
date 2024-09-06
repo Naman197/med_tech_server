@@ -16,10 +16,12 @@ const OrderSchema = new Schema({
       qty: { type: Number, required: true }, // Quantity ordered
       manufacturerId: { type: Schema.Types.ObjectId, ref: 'ManufacturerProduct' }, // Reference to ManufacturerProduct
       batchNo: { type: String },
+    
       mrp: { type: Number },
       cost: { type: Number },
       sellingPrice: { type: Number },
       productionDate: { type: Date },
+      category: { type: String },
       expiryDate: { type: Date },
       composition: [
         {
