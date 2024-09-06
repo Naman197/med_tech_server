@@ -76,7 +76,7 @@ const express = require('express');
    const distributorsinvRoute=require('./routes/distrubutors/inventoryRoutes');
    const dotenv = require('dotenv');
 const manfQr=require('./routes/manufacturers/qrcode');
-   
+   const manDash=require('./routes/manufacturers/dash');
    dotenv.config();
 
    const app = express();
@@ -94,11 +94,11 @@ const manfQr=require('./routes/manufacturers/qrcode');
    app.use(express.urlencoded({ extended: true }));
 
 
-   app.use('/api/manufacturers/inv',manfinvroute );
+   app.use('/api/manufacturers/inv',manfinvroute);
    app.use('/api/manufacturers/auth', manfAuthRoute);
    app.use('/api/manufacturers/orders', manfOrders);
    app.use('/api/manufacturers/qrcode', manfQr);
-
+app.use('/api/manufacturers/analysis',manDash);
 
    app.use('/api/distributors/auth',distributorsAuthRoute);
    app.use('/api/distributors/inv',distributorsinvRoute);

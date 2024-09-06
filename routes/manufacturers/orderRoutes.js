@@ -6,7 +6,7 @@ const {
     createOrder, 
     confirmOrder, 
     getOrdersByManufacturer, 
-    updateOrderStatus, 
+    updateOrderStatus,
     getOrdersByDistributor, 
     updatePaymentStatus,
     updateBillingDetails,
