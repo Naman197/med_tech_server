@@ -86,6 +86,82 @@ const QRCode  = require('../../models/manufacturers/qrCode');
 // };
 
 
+// const createOrder = async (req, res) => {
+//     try {
+//         console.log("hi");
+//         const {
+//             manufacturerName,
+//             medicines,
+//             billingDetails = {}
+//         } = req.body;
+
+//         if (!medicines || !Array.isArray(medicines) || medicines.length === 0) {
+//             return res.status(400).json({ message: 'Medicines array is required' });
+//         }
+
+//         for (const medicine of medicines) {
+//             if (!medicine.qty) {
+//                 return res.status(400).json({ message: 'Medicine qty is required' });
+//             }
+//         }
+
+//         const distributorId = req.user.id;
+
+//         // Find the distributor and manufacturer details
+//         const distributor = await Distributor.findById(distributorId);
+//         if (!distributor) {
+//             return res.status(404).json({ message: 'Distributor not found' });
+//         }
+
+//         const manufacturer = await Manufacturer.findOne({ organizationName: manufacturerName });
+//         if (!manufacturer) {
+//             return res.status(404).json({ message: 'Manufacturer not found' });
+//         }
+
+//         // Process medicines and fetch details
+//         const populatedMedicines = [];
+//         for (const medicine of medicines) {
+//             const product = await ManufacturerProduct.findOne({ name: medicine.name });
+//             if (product) {
+//                 populatedMedicines.push({
+//                     ...medicine,
+//                     manufacturerId: product._id,
+//                     batchNo: product.batchNo,
+//                     mrp: product.mrp,
+//                     cost: product.cost,
+//                     productionDate: product.productionDate,
+//                     expiryDate: product.expiryDate,
+//                     composition: product.composition,
+//                     temperature: product.temperature
+//                 });
+//             } else {
+//                 return res.status(404).json({ message: `Medicine '${medicine.name}' not found` });
+//             }
+//         }
+
+//         // Create new order
+//         const newOrder = new Order({
+//             distributor: {
+//                 distributorId: distributor._id,
+//                 name: distributor.fullName
+//             },
+//             manufacturer: {
+//                 manufacturerId: manufacturer._id,
+//                 name: manufacturer.organizationName
+//             },
+//             medicines: populatedMedicines,
+//             billingDetails: billingDetails || {}
+//         });
+
+//         await newOrder.save();
+
+//         res.status(201).json({ message: 'Order created successfully', order: newOrder });
+//     } catch (error) {
+//         res.status(500).json({ message: 'Failed to create order', error: error.message });
+//     }
+// };
+
+
 const createOrder = async (req, res) => {
     try {
         console.log("hi");
@@ -118,11 +194,14 @@ const createOrder = async (req, res) => {
             return res.status(404).json({ message: 'Manufacturer not found' });
         }
 
-        // Process medicines and fetch details
+        // Process medicines and fetch details including category
         const populatedMedicines = [];
         for (const medicine of medicines) {
             const product = await ManufacturerProduct.findOne({ name: medicine.name });
             if (product) {
+                // Find category of the medicine
+                const category = await Category.findById(product.categoryId);
+
                 populatedMedicines.push({
                     ...medicine,
                     manufacturerId: product._id,
@@ -132,7 +211,8 @@ const createOrder = async (req, res) => {
                     productionDate: product.productionDate,
                     expiryDate: product.expiryDate,
                     composition: product.composition,
-                    temperature: product.temperature
+                    temperature: product.temperature,
+                    category: category ? category.name : 'Unknown' // Add category name
                 });
             } else {
                 return res.status(404).json({ message: `Medicine '${medicine.name}' not found` });
@@ -160,7 +240,6 @@ const createOrder = async (req, res) => {
         res.status(500).json({ message: 'Failed to create order', error: error.message });
     }
 };
-
 
 
 
