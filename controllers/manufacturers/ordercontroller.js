@@ -161,7 +161,6 @@ const QRCode  = require('../../models/manufacturers/qrCode');
 //     }
 // };
 
-
 const createOrder = async (req, res) => {
     try {
         console.log("hi");
@@ -199,9 +198,7 @@ const createOrder = async (req, res) => {
         for (const medicine of medicines) {
             const product = await ManufacturerProduct.findOne({ name: medicine.name });
             if (product) {
-                // Find category of the medicine
-                const category = await Category.findById(product.categoryId);
-
+                // Directly assign the category from the product
                 populatedMedicines.push({
                     ...medicine,
                     manufacturerId: product._id,
@@ -212,7 +209,7 @@ const createOrder = async (req, res) => {
                     expiryDate: product.expiryDate,
                     composition: product.composition,
                     temperature: product.temperature,
-                    category: category ? category.name : 'Unknown' // Add category name
+                    category: product.category // Assuming 'category' is a field in the product
                 });
             } else {
                 return res.status(404).json({ message: `Medicine '${medicine.name}' not found` });
