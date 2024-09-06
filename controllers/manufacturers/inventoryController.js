@@ -20,7 +20,9 @@ exports.addInventory = async (req, res) => {
       barcode,
       composition,
       temperature,
-      rack
+      rack,
+      taxRate, // Added taxRate field
+
     } = req.body;
 
     const manufacturerId = req.user.id; // Use user ID from the middleware
@@ -65,6 +67,8 @@ exports.addInventory = async (req, res) => {
       composition,
       temperature,
       rack,
+      taxRate, // Save taxRate in the new product
+
       manufacturer: manufacturerId // Set the manufacturer ID
     });
 

@@ -41,6 +41,7 @@ const ManufacturerProductSchema = new Schema({
   mrp: { type: Number }, 
   cost: { type: Number },
   sellingPrice: { type: Number }, 
+  taxRate: { type: Number }, // Added tax rate
 
   qty: { type: Number }, 
   productionDate: { type: Date },
