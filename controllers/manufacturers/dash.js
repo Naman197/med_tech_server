@@ -57,9 +57,13 @@ const calculateTotals = async (req, res) => {
         });
         console.log('Pending Orders:', pendingOrders);
 
+        // const zeroQtyMedicines = await Order.countDocuments({
+        //     'manufacturer.manufacturerId': manufacturerId,
+        //     'medicines.qty': 0
+        // });
         const zeroQtyMedicines = await Order.countDocuments({
             'manufacturer.manufacturerId': manufacturerId,
-            'medicines.qty': 0
+            medicines: { $elemMatch: { qty: 0 } }
         });
         console.log('Zero Qty Medicines:', zeroQtyMedicines);
 
