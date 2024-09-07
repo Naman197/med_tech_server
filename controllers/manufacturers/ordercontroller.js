@@ -7,7 +7,14 @@ const DistProduct=require('../../models/distributors/inventory');
 const cloudinary = require('../../config/cloudinary'); 
 const fs = require('fs'); 
 const QRCode  = require('../../models/manufacturers/qrCode');
+const crypto = require('crypto'); // For generating unique box numbers
 
+// Function to generate a unique box number
+const generateUniqueBoxNo = () => {
+  const timestamp = Date.now().toString(); // Current timestamp
+  const randomString = crypto.randomBytes(4).toString('hex'); // Random 4-byte hex string
+  return `BOX-${timestamp}-${randomString}`; // Combine timestamp and random string for uniqueness
+};
 // Create a new order
 // const createOrder = async (req, res) => {
 //     try {
