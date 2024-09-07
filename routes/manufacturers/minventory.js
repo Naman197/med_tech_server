@@ -5,10 +5,11 @@ const upload = require('../../config/multer');
 const authenticateToken = require('../../middleware/authenticateToken');
 
 // Route to add new inventory data with authentication
-router.post('/add-inventory', authenticateToken, upload.array('qualityImages', 10), inventoryController.addInventory);
+// router.post('/add-inventory', authenticateToken, upload.array('qualityImages', 10), inventoryController.addInventory);
+router.post('/add-inventory', authenticateToken, upload.single('qualityImages'), inventoryController.addInventory);
 
 // Route to get all inventory data
-router.get('/inventory', inventoryController.getInventory);
+router.get('/inventory', authenticateToken,inventoryController.getInventory);
 router.get('/productsbymanf', authenticateToken, inventoryController.getProductsByManufacturer);
 router.put('/update-inventory/:id', 
   authenticateToken, // Middleware to authenticate user
