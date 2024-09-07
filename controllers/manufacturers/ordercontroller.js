@@ -373,12 +373,7 @@ const confirmOrder = async (req, res) => {
   
       // Process each medicine in the order
       for (const medicine of order.medicines) {
-        // Ensure qty is a number and valid
         let qty = Number(medicine.qty);
-  
-        // Log the type and value of qty for debugging
-        console.log(`Type of qty for medicine ${medicine.name}: ${typeof qty}`);
-        console.log(`Value of qty for medicine ${medicine.name}: ${qty}`);
   
         // Check if qty is NaN or non-positive
         if (isNaN(qty) || qty <= 0) {
@@ -387,7 +382,7 @@ const confirmOrder = async (req, res) => {
           continue;
         }
   
-        // Find the product by ID
+        // Find the product by manufacturerId
         const product = await ManufacturerProduct.findById(medicine.manufacturerId);
   
         if (!product) {
@@ -396,11 +391,7 @@ const confirmOrder = async (req, res) => {
           continue;
         }
   
-        // Ensure product.qty is a number and valid
         let productQty = Number(product.qty);
-  
-        console.log(`Type of product.qty for medicine ${medicine.name}: ${typeof productQty}`);
-        console.log(`Value of product.qty for medicine ${medicine.name}: ${productQty}`);
   
         if (isNaN(productQty) || productQty < qty) {
           allMedicinesAvailable = false;
@@ -414,20 +405,19 @@ const confirmOrder = async (req, res) => {
       }
   
       // Update order status based on availability
-    //   if (allMedicinesAvailable) {
-    //     order.orderStatus = 'Processing';
-    //   } else {
-    //     order.orderStatus = 'Failed';
-    //     order.failedMedicines = failedMedicines; // Optionally record failed medicines
-    //   }
-    if (allMedicinesAvailable) {
+      if (allMedicinesAvailable) {
         order.orderStatus = 'Processing';
-        order.orderConfirmDate = new Date(); // Set the order confirm date to now
+        order.orderConfirmDate = new Date(); // Set the confirmation date
+        
+        // Generate a unique box number
+        const uniqueBoxNo = generateUniqueBoxNo();
+        order.boxNo = uniqueBoxNo; // Set the generated box number
       } else {
         order.orderStatus = 'Failed';
         order.failedMedicines = failedMedicines; // Optionally record failed medicines
       }
   
+      // Save the updated order
       await order.save();
   
       res.status(200).json({
@@ -438,6 +428,7 @@ const confirmOrder = async (req, res) => {
       res.status(500).json({ message: 'Failed to confirm order', error: error.message });
     }
   };
+  
   const updateOrderStatus = async (req, res) => {
     try {
         const { orderId } = req.params;
