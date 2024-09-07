@@ -10,11 +10,35 @@ const QRCode  = require('../../models/manufacturers/qrCode');
 const crypto = require('crypto'); // For generating unique box numbers
 
 // Function to generate a unique box number
-const generateUniqueBoxNo = () => {
-  const timestamp = Date.now().toString(); // Current timestamp
-  const randomString = crypto.randomBytes(4).toString('hex'); // Random 4-byte hex string
-  return `BOX-${timestamp}-${randomString}`; // Combine timestamp and random string for uniqueness
-};
+// const generateUniqueBoxNo = () => {
+//   const timestamp = Date.now().toString(); // Current timestamp
+//   const randomString = crypto.randomBytes(4).toString('hex'); // Random 4-byte hex string
+//   return `BOX-${timestamp}-${randomString}`; // Combine timestamp and random string for uniqueness
+// };
+const generateUniqueBoxNo = async () => {
+    const possibleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const length = 6;
+    let boxNo;
+  
+    let isUnique = false;
+  
+    while (!isUnique) {
+      boxNo = '';
+      // Generate a 6-character random string
+      for (let i = 0; i < length; i++) {
+        const randomIndex = crypto.randomInt(0, possibleChars.length);
+        boxNo += possibleChars[randomIndex];
+      }
+  
+      // Check if the generated box number already exists in the database
+      const existingOrder = await RetailOrder.findOne({ boxNo });
+      if (!existingOrder) {
+        isUnique = true; // No existing order found with the same box number, it's unique
+      }
+    }
+  
+    return boxNo;
+  };
 // Create a new order
 // const createOrder = async (req, res) => {
 //     try {
