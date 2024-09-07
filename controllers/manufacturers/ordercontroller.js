@@ -345,7 +345,7 @@ const getOrdersByManufacturer = async (req, res) => {
         .populate('manufacturer.manufacturerId', 'name')
         .populate({
             path: 'medicines.manufacturerId', // Populate from ManufacturerProduct
-            select: 'name batchNo mrp cost sellingPrice productionDate expiryDate composition temperature'
+            select: 'name batchNo mrp cost sellingPrice productionDate expiryDate composition temperature boxNo '
         });
 
         if (!orders.length) {
@@ -461,7 +461,7 @@ const getOrdersByDistributor = async (req, res) => {
         // Fetch orders for the given distributor ID
         const orders = await Order.find({ 'distributor.distributorId': distributorId })
             .populate('manufacturer.manufacturerId', 'name')
-            .populate('medicines.manufacturerId', 'name batchNo mrp cost productionDate expiryDate composition temperature');
+            .populate('medicines.manufacturerId', 'name batchNo mrp cost productionDate expiryDate composition temperature boxNo ');
 
         if (!orders.length) {
             return res.status(404).json({ message: 'No orders found for the given distributor.' });
