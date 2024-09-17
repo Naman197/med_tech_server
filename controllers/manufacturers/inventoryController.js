@@ -26,27 +26,28 @@ exports.addInventory = async (req, res) => {
     } = req.body;
 
     const manufacturerId = req.user.id; // Use user ID from the middleware
-
+  console.log(req.file);
     let qualityCheckFiles = [];
 
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        console.log('File path:', file.path); // Log the file path
-        try {
-          let result;
-          if (file.mimetype.startsWith('image/')) {
-            result = await cloudinary.uploader.upload(file.path);
-            console.log(result);
-            qualityCheckFiles.push({ type: 'image', url: result.url }); // Use result.url for non-secure URL
-          } else if (file.mimetype === 'application/pdf') {
-            result = await cloudinary.uploader.upload(file.path, { resource_type: 'raw' });
-            qualityCheckFiles.push({ type: 'pdf', url: result.url }); // Use result.url for non-secure URL
-          }
-        } catch (cloudinaryError) {
-          console.error('Cloudinary upload error:', cloudinaryError.message);
-          return res.status(500).json({ message: 'Failed to upload file to Cloudinary', error: cloudinaryError.message });
+    if (req.file) {
+      const file = req.file;  // Single file, no need to loop
+      console.log('File path:', file.path); // Log the file path
+      
+      try {
+        let result;
+        if (file.mimetype.startsWith('image/')) {
+          result = await cloudinary.uploader.upload(file.path);
+          console.log(result);
+          qualityCheckFiles.push({ type: 'image', url: result.url }); // Use result.url for non-secure URL
+        } else if (file.mimetype === 'application/pdf') {
+          result = await cloudinary.uploader.upload(file.path, { resource_type: 'raw' });
+          qualityCheckFiles.push({ type: 'pdf', url: result.url }); // Use result.url for non-secure URL
         }
+      } catch (cloudinaryError) {
+        console.error('Cloudinary upload error:', cloudinaryError.message);
+        return res.status(500).json({ message: 'Failed to upload file to Cloudinary', error: cloudinaryError.message });
       }
+      
     }
 
     const newProduct = new ManufacturerProduct({
