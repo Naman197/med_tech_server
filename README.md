@@ -18,7 +18,7 @@ The **Ayutrack Backend** is a RESTful API built using **Node.js**, **Express**, 
 | Runtime      | Node.js            |
 | Framework    | Express.js         |
 | Database     | MongoDB            |
-| Deployment   | (e.g. Render / Vercel / Railway / EC2) |
+| Deployment   | vercel             |
 | Environment  | dotenv (.env) for configuration |
 
 ---
