@@ -4,11 +4,10 @@ The **Ayutrack Backend** is a RESTful API built using **Node.js**, **Express**, 
 
 ---
 
-## 🌐 Deployed URL
+## 🌐 Deployed Site URL
 
-> 🚀 [https://ayutrack-backend.example.com](https://ayutrack-backend.example.com)
+> 🚀 [https://ayutrack-backend.example.com](https://ayutrack.vercel.app/home)
 
-> _(Replace with your actual deployment URL if different)_
 
 ---
 
